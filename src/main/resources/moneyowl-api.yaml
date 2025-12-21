@@ -1447,34 +1447,6 @@ components:
           type: number
           format: BigDecimal
 
-    portfolioAIResponse:
-      type: object
-      properties:
-        equity:
-          type: number
-          format: BigDecimal
-        debt:
-          type: number
-          format: BigDecimal
-        cashAndLiquid:
-          type: number
-          format: BigDecimal
-        gold:
-          type: number
-          format: BigDecimal
-        realEstate:
-          type: number
-          format: BigDecimal
-        lifeInsurance:
-          type: number
-          format: BigDecimal
-        fixedIncome:
-          type: number
-          format: BigDecimal
-        otherIncome:
-          type: number
-          format: BigDecimal
-
     signupRequest:
       type: object
       properties:
