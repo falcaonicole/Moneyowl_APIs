@@ -1,0 +1,1522 @@
+openapi: 3.0.1
+
+info:
+  version: 1.0.0
+  title: MoneyOwl
+  description: MoneyOwl APIs for personal finance management.
+
+paths:
+  ###################### UserController APIs ####################################
+  '/save/user':
+    post:
+      tags:
+        - User
+      summary: Create and save a new User in DB.
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/userDTO'
+      responses:
+        '201':
+          description: Created a new User Successfully and returns newly added User.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/userResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+
+  /user/get/{userId}:
+    get:
+      tags:
+        - User
+      summary: Get user by ID
+      description: Retrieves user details for the specified user ID.
+      operationId: getUserById
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: Unique identifier of the user
+          schema:
+            type: long
+      responses:
+        '200':
+          description: Successfully retrieved user details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/userResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+
+  /user/put/{userId}:
+    put:
+      tags:
+        - User
+      summary: Update existing user
+      description: Updates user details for the specified user ID.
+      operationId: updateUser
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: Unique identifier of the user to update
+          schema:
+            type: long
+      requestBody:
+        required: true
+        description: User details to update
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/userDTO'
+      responses:
+        '200':
+          description: User updated successfully.
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "User updated successfully."
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+
+  /user/delete/{userId}:
+    delete:
+      tags:
+        - User
+      summary: Delete user by ID
+      description: Deletes the specified user from the system.
+      operationId: deleteUser
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: Unique identifier of the user to delete
+          schema:
+            type: long
+      responses:
+        '200':
+          description: User deleted successfully.
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "User deleted successfully."
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+
+  /user/getAllUserLiabilities/{userId}:
+    get:
+      tags:
+        - User
+      summary: Get all liabilities for a user
+      description: Retrieves the list of liabilities associated with the specified user ID.
+      operationId: getAllUserLiabilities
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: Unique identifier of the user whose liabilities are being retrieved
+          schema:
+            type: long
+      responses:
+        '200':
+          description: Successfully retrieved user liabilities.
+          content:
+            application/json:
+              schema:
+                title: liabilityDTOResponse
+                type: object
+                required:
+                  - data
+                properties:
+                  data:
+                    type: object
+                    title: liabilityResponseDetails
+                    required:
+                      - items
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/liabilityDTO'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+
+
+  /user/getUserPortfolio/{userId}:
+    get:
+      tags:
+        - User
+      summary: Get user portfolio
+      description: Retrieves the portfolio information for the specified user ID.
+      operationId: getUserPortfolio
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: Unique identifier of the user whose portfolio is being retrieved
+          schema:
+            type: long
+      responses:
+        '200':
+          description: Successfully retrieved user portfolio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/portfolioDTO'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+
+  ###################### PORTFOLIO APIs ########################
+  '/save/portfolio/{userId}':
+    post:
+      tags:
+        - Portfolio
+      summary: Create and save a new Portfolio.
+      description: Creates a portfolio entry linked to a specific user.
+      operationId: savePortfolio
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: Unique identifier of the user to associate the portfolio with
+          schema:
+            type: long
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/portfolioDTO'
+      responses:
+        '201':
+          description: Created a new Portfolio successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/portfolioResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+
+  '/portfolio/get/{portfolioId}':
+    get:
+      tags:
+        - Portfolio
+      summary: Get Portfolio by ID
+      description: Retrieves portfolio details for the specified portfolio ID.
+      operationId: getPortfolioById
+      parameters:
+        - name: portfolioId
+          in: path
+          required: true
+          description: Unique identifier of the portfolio
+          schema:
+            type: long
+      responses:
+        '200':
+          description: Successfully retrieved portfolio details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/portfolioResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+
+  '/portfolio/update/{userId}':
+    put:
+      tags:
+        - Portfolio
+      summary: Update existing Portfolio
+      description: Updates portfolio details for the specified User ID.
+      operationId: updatePortfolio
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: Unique identifier of the user owning the portfolio
+          schema:
+            type: long
+      requestBody:
+        required: true
+        description: Portfolio details to update
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/portfolioDTO'
+      responses:
+        '200':
+          description: Portfolio updated successfully.
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "Portfolio updated successfully."
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+
+  '/portfolio/delete/{portfolioId}':
+    delete:
+      tags:
+        - Portfolio
+      summary: Delete Portfolio by ID
+      description: Deletes the specified portfolio from the system.
+      operationId: deletePortfolio
+      parameters:
+        - name: portfolioId
+          in: path
+          required: true
+          description: Unique identifier of the portfolio to delete
+          schema:
+            type: long
+      responses:
+        '200':
+          description: Portfolio deleted successfully.
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "Portfolio deleted successfully."
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+
+  ####################### LIABILITY APIs #####################
+  '/save/liability/{userId}':
+    post:
+      tags:
+        - Liability
+      summary: Create and save a new Liability.
+      description: Creates a liability entry linked to a specific user.
+      operationId: saveLiability
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: Unique identifier of the user to associate the liability with
+          schema:
+            type: long
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/liabilityDTO'
+      responses:
+        '200':
+          description: Liability saved successfully.
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "Liability saved successfully."
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+
+  '/liability/get/{liabilityId}':
+    get:
+      tags:
+        - Liability
+      summary: Get Liability by ID
+      description: Retrieves liability details for the specified liability ID.
+      operationId: getLiabilityById
+      parameters:
+        - name: liabilityId
+          in: path
+          required: true
+          description: Unique identifier of the liability
+          schema:
+            type: long
+      responses:
+        '200':
+          description: Successfully retrieved liability details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/liabilityResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+
+  '/liability/update/{liabilityId}':
+    put:
+      tags:
+        - Liability
+      summary: Update existing Liability
+      description: Updates liability details for the specified Liability ID.
+      operationId: updateLiability
+      parameters:
+        - name: liabilityId
+          in: path
+          required: true
+          description: Unique identifier of the liability to update
+          schema:
+            type: long
+      requestBody:
+        required: true
+        description: Liability details to update
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/liabilityDTO'
+      responses:
+        '200':
+          description: Liability updated successfully.
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "Liability updated successfully."
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+
+  '/liability/delete/{liabilityId}':
+    delete:
+      tags:
+        - Liability
+      summary: Delete Liability by ID
+      description: Deletes the specified liability from the system.
+      operationId: deleteLiability
+      parameters:
+        - name: liabilityId
+          in: path
+          required: true
+          description: Unique identifier of the liability to delete
+          schema:
+            type: long
+      responses:
+        '200':
+          description: Liability deleted successfully.
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "Liability deleted successfully."
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+  ####################### GrowthRate APIs #####################
+  '/get/individualAssetGrowth/{userId}/{duration}':
+    get:
+      tags:
+        - AssetGrowthRate
+      summary: Retrieve Individual Asset Growth Rate
+      description: Fetches the projected growth rate and details for individual assets in the user's portfolio over a specified duration using path parameters.
+      operationId: getIndividualAssetGrowthRate
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: Unique identifier of the user (Long).
+          schema:
+            type: integer
+            format: int64
+            example: 1001
+        - name: duration
+          in: path
+          required: true
+          description: The projection duration in years (Integer).
+          schema:
+            type: integer
+            format: int32
+            example: 5
+      responses:
+        '200':
+          description: Successfully retrieved asset growth rates.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/portfolioResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+
+  '/get/netWorthGrowthRate/{userId}/{duration}':
+    get:
+      tags:
+        - AssetGrowthRate
+      summary: Retrieve Net Worth Growth Rate
+      description: Returns a Map where the Key is the Year and the Value is the projected Net Worth (or Growth Rate).
+      operationId: getNetWorthGrowthRate
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: Unique identifier of the user (Long).
+          schema:
+            type: integer
+            format: int64
+            example: 1001
+        - name: duration
+          in: path
+          required: true
+          description: The projection duration in years (Integer).
+          schema:
+            type: integer
+            format: int32
+            example: 5
+      responses:
+        '200':
+          description: Successfully retrieved net worth projection.
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Map<Year, Value>
+                additionalProperties:
+                  type: number
+                example:
+                  "2025": 67676578.50
+                  "2026": 7878.00
+                  "2027": 85000.00
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+
+  '/get/netWorthGrowthWithInflation/{userId}/{duration}':
+    get:
+      tags:
+        - AssetGrowthRate
+      summary: Retrieve Net Worth Growth Rate with Inflation
+      description: Returns a Map where the Key is the Year and the Value is the projected Net Worth (or Growth Rate).
+      operationId: getNetWorthGrowthRateWithInflation
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: Unique identifier of the user (Long).
+          schema:
+            type: integer
+            format: int64
+            example: 1001
+        - name: duration
+          in: path
+          required: true
+          description: The projection duration in years (Integer).
+          schema:
+            type: integer
+            format: int32
+            example: 5
+      responses:
+        '200':
+          description: Successfully retrieved net worth projection.
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Map<Year, Value>
+                additionalProperties:
+                  type: number
+                example:
+                  "2025": 67676578.50
+                  "2026": 7878.00
+                  "2027": 85000.00
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+
+  '/get/netWorthGrowthRateWithAdjustedInflation/{userId}/{duration}':
+    get:
+      tags:
+        - AssetGrowthRate
+      summary: Retrieve Net Worth Growth Rate with Inflation Adjusted Growth
+      description: Returns a Map where the Key is the Year and the Value is the projected Net Worth (or Growth Rate).
+      operationId: getNetWorthGrowthRateWithAdjustedInflation
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: Unique identifier of the user (Long).
+          schema:
+            type: integer
+            format: int64
+            example: 1001
+        - name: duration
+          in: path
+          required: true
+          description: The projection duration in years (Integer).
+          schema:
+            type: integer
+            format: int32
+            example: 5
+      responses:
+        '200':
+          description: Successfully retrieved net worth projection.
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Map<Year, Value>
+                additionalProperties:
+                  type: number
+                example:
+                  "2025": 67676578.50
+                  "2026": 7878.00
+                  "2027": 85000.00
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+
+  ####################### AUTH APIs ############################
+  '/register':
+    post:
+      tags:
+        - Authentication
+      summary: Register a new user
+      description: Creates a new user record and sends an OTP to the provided email.
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/signupRequest'
+      responses:
+        '200':
+          description: Registration successful
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "User registered successfully. Please check email for OTP."
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+
+  '/login':
+    post:
+      tags:
+        - Authentication
+      summary: User Login
+      description: Authenticates a user and returns a JWT token if the account is verified.
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/loginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/loginResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+
+  '/verifyOTP':
+    post:
+      tags:
+        - Authentication
+      summary: Verify Email OTP
+      description: Verifies the OTP sent to the user's email to activate the account.
+      operationId: verifyOtp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/otpRequest'
+      responses:
+        '200':
+          description: Verification successful
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Account verified successfully."
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+
+components:
+  ####################### HEADER ##############################
+  headers:
+    x-correlation-id:
+      description: Unique Identifier to trace the transaction
+      schema:
+        type: string
+
+  ####################### RESPONSES ############################
+  responses:
+    '400':
+      description: Bad Request. The Server was unable to process the request due to invalid request syntax.
+      headers:
+        x-correlation-id:
+          $ref: '#/components/headers/x-correlation-id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+    '401':
+      description: Unauthorized. Authentication is required or has failed.
+      headers:
+        x-correlation-id:
+          $ref: '#/components/headers/x-correlation-id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+
+    '403':
+      description: Forbidden. The server understood the request, but refuses to authorize it.
+      headers:
+        x-correlation-id:
+          $ref: '#/components/headers/x-correlation-id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+
+    '404':
+      description: Not Found. The requested resource could not be found.
+      headers:
+        x-correlation-id:
+          $ref: '#/components/headers/x-correlation-id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+
+    '405':
+      description: Method Not Allowed. The HTTP method is not supported for this resource.
+      headers:
+        x-correlation-id:
+          $ref: '#/components/headers/x-correlation-id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+
+    '415':
+      description: Unsupported Media Type. The request entity format is not supported by the server.
+      headers:
+        x-correlation-id:
+          $ref: '#/components/headers/x-correlation-id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+
+    '422':
+      description: Unprocessable Entity. The request was well-formed but contains semantic errors.
+      headers:
+        x-correlation-id:
+          $ref: '#/components/headers/x-correlation-id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+
+    '429':
+      description: Too Many Requests. The client has sent too many requests in a given amount of time.
+      headers:
+        x-correlation-id:
+          $ref: '#/components/headers/x-correlation-id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+
+    '500':
+      description: Internal Server Error. The server encountered an unexpected condition.
+      headers:
+        x-correlation-id:
+          $ref: '#/components/headers/x-correlation-id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+
+    '502':
+      description: Bad Gateway. The server received an invalid response from an upstream server.
+      headers:
+        x-correlation-id:
+          $ref: '#/components/headers/x-correlation-id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+
+    '503':
+      description: Service Unavailable. The server is currently unable to handle the request.
+      headers:
+        x-correlation-id:
+          $ref: '#/components/headers/x-correlation-id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+
+    '504':
+      description: Gateway Timeout. The server did not receive a timely response from an upstream server.
+      headers:
+        x-correlation-id:
+          $ref: '#/components/headers/x-correlation-id'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+
+  ####################### COMMON SCHEMAS ############################
+  schemas:
+    error:
+      type: object
+      properties:
+        title:
+          description: Error title
+          type: string
+        detail:
+          description: Detailed Error message
+          type: string
+
+    userDTO:
+      description: User Entity Data Transfer Object
+      type: object
+      required:
+        - firstName
+        - lastName
+        - email
+        - address
+        - mobNo
+        - password
+      properties:
+        firstName:
+          description: User first name
+          type: string
+          x-field-extra-annotation: '@jakarta.validation.constraints.NotBlank'
+          minLength: 1
+          maxLength: 150
+        lastName:
+          description: User last name
+          type: string
+          x-field-extra-annotation: '@jakarta.validation.constraints.NotBlank'
+          minLength: 1
+          maxLength: 150
+        email:
+          description: User email address
+          type: string
+          format: email
+          x-field-extra-annotation: |
+            @jakarta.validation.constraints.NotBlank
+            @jakarta.validation.constraints.Email
+          example: "user@example.com"
+          maxLength: 255
+        address:
+          description: User address
+          type: string
+          x-field-extra-annotation: '@jakarta.validation.constraints.NotBlank'
+          minLength: 1
+          maxLength: 255
+        mobNo:
+          description: User mobile number
+          type: string
+          x-field-extra-annotation: |
+            @jakarta.validation.constraints.NotBlank
+            @jakarta.validation.constraints.Pattern(regexp = "^[0-9]{10,15}$", message = "Invalid mobile number format")
+          example: "9876543210"
+          minLength: 10
+          maxLength: 15
+        password:
+          description: User account password
+          type: string
+          x-field-extra-annotation: |
+            @jakarta.validation.constraints.NotBlank
+            @jakarta.validation.constraints.Size(min = 8, max = 64)
+          example: "StrongP@ssw0rd"
+          minLength: 8
+          maxLength: 64
+
+    userResponse:
+      description: User Entity Response
+      type: object
+      required:
+        - userId
+        - firstName
+        - lastName
+        - email
+        - address
+        - mobNo
+        - isActive
+        - isVerified
+        - userType
+      properties:
+        userId:
+          description: User Id in DB
+          type: long
+        firstName:
+          description: User first name
+          type: string
+          x-field-extra-annotation: '@jakarta.validation.constraints.NotBlank'
+          minLength: 1
+          maxLength: 150
+        lastName:
+          description: User last name
+          type: string
+          x-field-extra-annotation: '@jakarta.validation.constraints.NotBlank'
+          minLength: 1
+          maxLength: 150
+        email:
+          description: User email address
+          type: string
+          format: email
+          x-field-extra-annotation: |
+            @jakarta.validation.constraints.NotBlank
+            @jakarta.validation.constraints.Email
+          example: "user@example.com"
+          maxLength: 255
+        address:
+          description: User address
+          type: string
+          x-field-extra-annotation: '@jakarta.validation.constraints.NotBlank'
+          minLength: 1
+          maxLength: 255
+        mobNo:
+          description: User mobile number
+          type: string
+          x-field-extra-annotation: |
+            @jakarta.validation.constraints.NotBlank
+            @jakarta.validation.constraints.Pattern(regexp = "^[0-9]{10,15}$", message = "Invalid mobile number format")
+          example: "9876543210"
+          minLength: 10
+          maxLength: 15
+        isActive:
+          description: Active or Inactive User Flag
+          type: boolean
+        isVerified:
+          description: Verified or Unverified User Flag
+          type: boolean
+        userType:
+          description: Type of User
+          type: String
+
+    liabilityDTO:
+      description: Liability Entity Data Transfer Object
+      type: object
+      required:
+        - liabilityType
+        - liabilitySubType
+        - startDate
+        - endDate
+        - roi
+        - duration
+        - amount
+        - status
+      properties:
+        liabilityId:
+          type: long
+        liabilityType:
+          type: string
+        liabilitySubType:
+          type: string
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        roi:
+          type: number
+          format: BigDecimal
+        duration:
+          type: number
+          format: BigDecimal
+        amount:
+          type: number
+          format: BigDecimal
+        status:
+          type: string
+
+    liabilityResponse:
+      type: object
+      properties:
+        liabilityId:
+          type: long
+          description: The auto-generated ID of the liability
+        liabilityType:
+          type: string
+        liabilitySubType:
+          type: string
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        roi:
+          type: number
+          format: BigDecimal
+        duration:
+          type: number
+          format: BigDecimal
+        amount:
+          type: number
+          format: BigDecimal
+        status:
+          type: string
+
+    portfolioDTO:
+      description: Portfolio Entity Data Transfer Object
+      type: object
+      required:
+        - portfolioId
+        - equity
+        - debt
+        - cashAndLiquid
+        - gold
+        - realEstate
+        - lifeInsurance
+        - fixedIncome
+        - otherIncome
+      properties:
+        portfolioId:
+          type: long
+        equity:
+          type: number
+          format: BigDecimal
+        debt:
+          type: number
+          format: BigDecimal
+        cashAndLiquid:
+          type: number
+          format: BigDecimal
+        gold:
+          type: number
+          format: BigDecimal
+        realEstate:
+          type: number
+          format: BigDecimal
+        lifeInsurance:
+          type: number
+          format: BigDecimal
+        fixedIncome:
+          type: number
+          format: BigDecimal
+        otherIncome:
+          type: number
+          format: BigDecimal
+
+    portfolioResponse:
+      type: object
+      properties:
+        portfolioId:
+          type: long
+          description: The auto-generated ID of the portfolio
+        equity:
+          type: number
+          format: BigDecimal
+        debt:
+          type: number
+          format: BigDecimal
+        cashAndLiquid:
+          type: number
+          format: BigDecimal
+        gold:
+          type: number
+          format: BigDecimal
+        realEstate:
+          type: number
+          format: BigDecimal
+        lifeInsurance:
+          type: number
+          format: BigDecimal
+        fixedIncome:
+          type: number
+          format: BigDecimal
+        otherIncome:
+          type: number
+          format: BigDecimal
+
+    portfolioAIResponse:
+      type: object
+      properties:
+        equity:
+          type: number
+          format: BigDecimal
+        debt:
+          type: number
+          format: BigDecimal
+        cashAndLiquid:
+          type: number
+          format: BigDecimal
+        gold:
+          type: number
+          format: BigDecimal
+        realEstate:
+          type: number
+          format: BigDecimal
+        lifeInsurance:
+          type: number
+          format: BigDecimal
+        fixedIncome:
+          type: number
+          format: BigDecimal
+        otherIncome:
+          type: number
+          format: BigDecimal
+
+    signupRequest:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        address:
+          type: string
+        mobNo:
+          type: string
+
+    loginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+
+    otpRequest:
+      type: object
+      properties:
+        email:
+          type: string
+        otp:
+          type: string
+
+    loginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        message:
+          type: string
+
+
+
+
+
+

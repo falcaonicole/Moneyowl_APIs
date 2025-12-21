@@ -1,0 +1,81 @@
+spring:
+  application:
+    name: MoneyOwl
+    security:
+      jwt:
+        secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+        expiration: 1800000 # 30 minutes (30 * 60 * 1000)
+  main:
+    debug: false
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui-custom.html
+    operationsSorter: method
+
+---
+# Local Server
+spring:
+  config:
+    activate:
+      on-profile: local
+
+  #DB Url Config
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/MONEYOWL
+    username: nicolefalcao
+    password: root
+
+  #Ollama AI LLM Config
+  #  ai:
+  #    ollama:
+  #      base-url: http://localhost:11434
+  #      chat:
+  #        model: llama3.1 # Must support function calling
+  #        options:
+  #          temperature: 0.7 # Creativity level
+
+  #Groq AI LLM Config
+  ai:
+    openai:
+      api-key: "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"
+      base-url: https://api.groq.com/openai
+      chat:
+        options:
+          model: llama-3.3-70b-versatile
+          temperature: 0.7
+  #JPA Properties
+  jpa:
+    hibernate:
+      ddl-auto: none
+      jdbc:
+        batch_size: 50
+        batch_versioned_data: true
+      order_inserts: true
+      order_update: true
+      generate_statistics: true
+    show-sql: true
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+    generate-ddl: false
+
+  #Mail Config
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: moneyowl11@gmail.com
+    password: "pago icus wewv szqi"
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+# LOGGING #
+#logging.level.org.springframework=DEBUG
+#logging.level.com.finance.moneyowl=DEBUG
