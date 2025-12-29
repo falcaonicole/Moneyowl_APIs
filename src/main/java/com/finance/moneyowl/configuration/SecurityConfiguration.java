@@ -35,8 +35,8 @@ public class SecurityConfiguration {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/register", "/login", "/verifyOTP", "/api/chat", "/ai/**").permitAll() // Open Auth Endpoints
-                        .anyRequest().permitAll()
+                        .requestMatchers("/register", "/login", "/verifyOTP", "/app/start").permitAll() // Open Auth Endpoints
+                        .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

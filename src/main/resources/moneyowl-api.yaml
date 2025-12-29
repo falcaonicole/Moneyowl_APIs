@@ -1048,6 +1048,177 @@ paths:
           $ref: '#/components/responses/503'
         '504':
           $ref: '#/components/responses/504'
+############## SurvivalMode APIs #############################
+  /simulator/survival:
+    post:
+      tags:
+        - Simulator
+      summary: Calculate survival runway
+      operationId: calculateSurvival
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SurvivalRequestDTO'
+      responses:
+        '200':
+          description: Survival simulation result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SurvivalResponseDTO'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+
+ ######################## LifeGoals API'S ##########################
+  '/lifegoals/templates':
+    get:
+      tags:
+        - LifeGoals
+      summary: Get goal templates
+      operationId: getGoalTemplates
+      responses:
+        '200':
+          description: Goal templates fetched successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoalTemplateResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+
+  '/get/lifegoals':
+    get:
+      tags:
+        - LifeGoals
+      summary: Get user life goals
+      operationId: getUserGoals
+      responses:
+        '200':
+          description: Successfully retrieved user Goals
+          content:
+            application/json:
+              schema:
+                title: userGoalResponse
+                type: object
+                required:
+                  - data
+                properties:
+                  data:
+                    type: object
+                    title: userGoalsResponseDetails
+                    required:
+                      - items
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/userGoal'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+
+  '/lifegoals/addUpsert':
+    post:
+      tags:
+        - LifeGoals
+      summary: Add or update a life goal
+      operationId: saveLifeGoal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaveGoalRequest'
+      responses:
+        '201':
+          description: Goal saved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SaveGoalResponse'
+
+  '/lifegoals/{goalId}':
+    delete:
+      tags:
+        - LifeGoals
+      summary: Delete a life goal
+      operationId: deleteLifeGoal
+      parameters:
+        - name: goalId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Goal deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericResponse'
+
 
 components:
   ####################### HEADER ##############################
@@ -1487,8 +1658,176 @@ components:
         message:
           type: string
 
+    SurvivalMode:
+      type: string
+      enum:
+        - ZOMBIE
+        - LEAN
+        - COMFORT
 
+    SurvivalRequestDTO:
+      type: object
+      required:
+        - userId
+        - mode
+      properties:
+        userId:
+          type: integer
+          format: int64
+          x-field-extra-annotation: '@jakarta.validation.constraints.NotNull'
+        mode:
+          type: string
 
+    SurvivalResponseDTO:
+      type: object
+      properties:
+        liquidAssets:
+          type: number
+          format: bigdecimal
+        monthlyBurn:
+          type: number
+          format: bigdecimal
+        survivalMonths:
+          type: number
+          format: bigdecimal
+        survivalYears:
+          type: number
+          format: bigdecimal
+        isMonthlyExpensePresent:
+          type: boolean
+        monthlyExpenseId:
+          type: integer
+          format: int64
 
+    GoalTemplateResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/GoalTemplate'
+
+    GoalTemplate:
+      type: object
+      properties:
+        templateId:
+          type: string
+          example: CAR
+        name:
+          type: string
+          example: Buy a Car
+        icon:
+          type: string
+          example: car_icon
+        defaultCost:
+          type: number
+          format: double
+          example: 800000
+        category:
+          type: string
+          example: LIFESTYLE
+
+    userGoal:
+      type: object
+      required:
+        - id
+        - templateId
+        - name
+        - totalCost
+        - targetYear
+        - roi
+        - duration
+        - financingMode
+      properties:
+        id:
+          type: string
+        templateId:
+          type: string
+        name:
+          type: string
+        totalCost:
+          type: number
+          format: double
+        targetYear:
+          type: integer
+        roi:
+          type: number
+        duration:
+          type: integer
+        financingMode:
+          type: string
+
+    SaveGoalRequest:
+      type: object
+      required:
+        - userId
+        - templateId
+        - name
+        - cost
+        - startYear
+        - financingMode
+      properties:
+        userId:
+          type: string
+        templateId:
+          type: string
+        name:
+          type: string
+        icon:
+          type: string
+        cost:
+          type: number
+          format: double
+        startYear:
+          type: integer
+        financingMode:
+          type: string
+        loanConfig:
+          $ref: '#/components/schemas/LoanConfig'
+
+    LoanConfig:
+      type: object
+      nullable: true
+      properties:
+        downPayment:
+          type: number
+          format: double
+        interestRate:
+          type: number
+          format: double
+        tenureYears:
+          type: integer
+
+    SaveGoalResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        message:
+          type: string
+          example: Goal saved successfully
+        data:
+          $ref: '#/components/schemas/SaveGoalResponseData'
+
+    SaveGoalResponseData:
+      type: object
+      properties:
+        goalId:
+          type: string
+          format: uuid
+
+    GenericResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        message:
+          type: string
+          example: Goal deleted successfully
 
 

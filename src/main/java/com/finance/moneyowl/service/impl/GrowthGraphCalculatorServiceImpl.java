@@ -312,7 +312,9 @@ public class GrowthGraphCalculatorServiceImpl implements GrowthGraphCalculatorSe
     private BigDecimal calculateOutstandingBalance(LiabilityDTO liability, LocalDate targetDate) {
         log.info("Start GrowthGraphCalculatorServiceImpl :: calculateOutstandingBalance");
         // If target date is past the loan end date, liability is 0 (Assuming paid off)
-        if (targetDate.isAfter(liability.getEndDate())) {
+        if (!"MONTHLY_FIXED_EXPENSES".equals(liability.getLiabilitySubType())
+                && liability.getEndDate() != null
+                && targetDate.isAfter(liability.getEndDate())) {
             return BigDecimal.ZERO;
         }
 

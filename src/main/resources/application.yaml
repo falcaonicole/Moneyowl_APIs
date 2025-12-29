@@ -3,8 +3,8 @@ spring:
     name: MoneyOwl
     security:
       jwt:
-        secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
-        expiration: 1800000 # 30 minutes (30 * 60 * 1000)
+        secret-key: ${JWT_SECRET_KEY}
+        expiration: 3600000 # 30 minutes (30 * 60 * 1000)
   main:
     debug: false
 
@@ -25,9 +25,9 @@ spring:
   #DB Url Config
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/MONEYOWL
-    username: nicolefalcao
-    password: root
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
 
   #Ollama AI LLM Config
   #  ai:
@@ -41,11 +41,11 @@ spring:
   #Groq AI LLM Config
   ai:
     openai:
-      api-key: "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"
+      api-key: ${GROQ_API_KEY}
       base-url: https://api.groq.com/openai
       chat:
         options:
-          model: llama-3.3-70b-versatile
+          model: ${GROQ_MODEL_NAME}
           temperature: 0.7
   #JPA Properties
   jpa:
@@ -67,14 +67,24 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: moneyowl11@gmail.com
-    password: "pago icus wewv szqi"
+    username: ${SMTP_USERNAME}
+    password: ${SMTP_PASSWORD}
     properties:
       mail:
         smtp:
           auth: true
           starttls:
             enable: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  health:
+    db:
+      enabled: true
+
 
 # LOGGING #
 #logging.level.org.springframework=DEBUG
