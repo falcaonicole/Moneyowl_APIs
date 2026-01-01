@@ -1092,132 +1092,83 @@ paths:
           $ref: '#/components/responses/504'
 
  ######################## LifeGoals API'S ##########################
-  '/lifegoals/templates':
+  '/api/goals/{userId}':
     get:
       tags:
-        - LifeGoals
-      summary: Get goal templates
-      operationId: getGoalTemplates
-      responses:
-        '200':
-          description: Goal templates fetched successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GoalTemplateResponse'
-        '400':
-          $ref: '#/components/responses/400'
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '405':
-          $ref: '#/components/responses/405'
-        '415':
-          $ref: '#/components/responses/415'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-        '502':
-          $ref: '#/components/responses/502'
-        '503':
-          $ref: '#/components/responses/503'
-        '504':
-          $ref: '#/components/responses/504'
-
-  '/get/lifegoals':
-    get:
-      tags:
-        - LifeGoals
-      summary: Get user life goals
+        - Simulator
+      summary: Get all life goals for a user
       operationId: getUserGoals
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
       responses:
         '200':
-          description: Successfully retrieved user Goals
+          description: List of life goals
           content:
             application/json:
               schema:
-                title: userGoalResponse
-                type: object
-                required:
-                  - data
-                properties:
-                  data:
-                    type: object
-                    title: userGoalsResponseDetails
-                    required:
-                      - items
-                    properties:
-                      items:
-                        type: array
-                        items:
-                          $ref: '#/components/schemas/userGoal'
-        '400':
-          $ref: '#/components/responses/400'
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
+                $ref: '#/components/schemas/LifeGoalsListResponse'
         '404':
           $ref: '#/components/responses/404'
-        '405':
-          $ref: '#/components/responses/405'
-        '415':
-          $ref: '#/components/responses/415'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-        '502':
-          $ref: '#/components/responses/502'
-        '503':
-          $ref: '#/components/responses/503'
-        '504':
-          $ref: '#/components/responses/504'
 
-  '/lifegoals/addUpsert':
+  '/api/goals':
     post:
       tags:
-        - LifeGoals
-      summary: Add or update a life goal
-      operationId: saveLifeGoal
+        - Simulator
+      summary: Create life goal
+      operationId: createLifeGoal
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SaveGoalRequest'
+              $ref: '#/components/schemas/LifeGoalRequestDTO'
       responses:
-        '201':
-          description: Goal saved successfully
+        '200':
+          description: Life goal created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SaveGoalResponse'
+                $ref: '#/components/schemas/LifeGoalResponseDTO'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
 
-  '/lifegoals/{goalId}':
-    delete:
+  /api/goals/{goalId}:
+    put:
       tags:
-        - LifeGoals
-      summary: Delete a life goal
-      operationId: deleteLifeGoal
+        - Simulator
+      summary: Update an existing life goal
+      description: Updates details of a life goal using goalId
+      operationId: updateLifeGoal
       parameters:
         - name: goalId
           in: path
           required: true
           schema:
             type: string
-            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LifeGoalRequestDTO'
       responses:
         '200':
-          description: Goal deleted successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GenericResponse'
+          description: Life goal updated successfully
+        '400':
+          description: Invalid request
+        '404':
+          description: Life goal not found
+
 
 
 components:
@@ -1699,79 +1650,17 @@ components:
           type: integer
           format: int64
 
-    GoalTemplateResponse:
-      type: object
-      properties:
-        status:
-          type: string
-          example: success
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/GoalTemplate'
-
-    GoalTemplate:
-      type: object
-      properties:
-        templateId:
-          type: string
-          example: CAR
-        name:
-          type: string
-          example: Buy a Car
-        icon:
-          type: string
-          example: car_icon
-        defaultCost:
-          type: number
-          format: double
-          example: 800000
-        category:
-          type: string
-          example: LIFESTYLE
-
-    userGoal:
-      type: object
-      required:
-        - id
-        - templateId
-        - name
-        - totalCost
-        - targetYear
-        - roi
-        - duration
-        - financingMode
-      properties:
-        id:
-          type: string
-        templateId:
-          type: string
-        name:
-          type: string
-        totalCost:
-          type: number
-          format: double
-        targetYear:
-          type: integer
-        roi:
-          type: number
-        duration:
-          type: integer
-        financingMode:
-          type: string
-
-    SaveGoalRequest:
+    LifeGoalRequestDTO:
       type: object
       required:
         - userId
         - templateId
-        - name
         - cost
-        - startYear
-        - financingMode
+        - year
       properties:
         userId:
-          type: string
+          type: integer
+          format: int64
         templateId:
           type: string
         name:
@@ -1780,54 +1669,45 @@ components:
           type: string
         cost:
           type: number
-          format: double
-        startYear:
+          format: bigdecimal
+        year:
           type: integer
-        financingMode:
-          type: string
-        loanConfig:
-          $ref: '#/components/schemas/LoanConfig'
-
-    LoanConfig:
-      type: object
-      nullable: true
-      properties:
-        downPayment:
+        isLoan:
+          type: boolean
+        roi:
           type: number
           format: double
-        interestRate:
-          type: number
-          format: double
-        tenureYears:
+        loanDuration:
           type: integer
 
-    SaveGoalResponse:
+    LifeGoalResponseDTO:
       type: object
       properties:
-        status:
+        id:
           type: string
-          example: success
-        message:
-          type: string
-          example: Goal saved successfully
-        data:
-          $ref: '#/components/schemas/SaveGoalResponseData'
 
-    SaveGoalResponseData:
+    LifeGoalsListResponse:
       type: object
       properties:
-        goalId:
-          type: string
-          format: uuid
+        userId:
+          type: integer
+        goals:
+          type: array
+          items:
+            $ref: '#/components/schemas/LifeGoalRequestDTO'
 
-    GenericResponse:
+    GoalTemplateDTO:
       type: object
       properties:
-        status:
+        id:
           type: string
-          example: success
-        message:
+        name:
           type: string
-          example: Goal deleted successfully
+        icon:
+          type: string
+        defaultCost:
+          type: number
+          format: bigdecimal
+
 
 
