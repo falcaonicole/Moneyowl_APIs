@@ -7,5 +7,8 @@ public interface SimulatorService {
     LifeGoalsListResponse getLifeGoals(Long userId);
     LifeGoalResponseDTO createLifeGoal(LifeGoalRequestDTO request);
     void updateLifeGoal(String goalId, LifeGoalRequestDTO request);
+    void deleteLifeGoal(String goalId);
+    GoalTemplateListResponse getGoalTemplates();
+    GoalTemplateDTO getGoalTemplateById(String templateId);
 }
 

@@ -1,15 +1,10 @@
 package com.finance.moneyowl.service.impl;
 
-import com.finance.moneyowl.entity.Liability;
-import com.finance.moneyowl.entity.LifeGoal;
-import com.finance.moneyowl.entity.Portfolio;
-import com.finance.moneyowl.entity.User;
+import com.finance.moneyowl.entity.*;
 import com.finance.moneyowl.exceptions.MoneyowlApplicationException;
+import com.finance.moneyowl.exceptions.ResourceNotFoundException;
 import com.finance.moneyowl.generatedmodels.*;
-import com.finance.moneyowl.repository.LiabilityRepository;
-import com.finance.moneyowl.repository.LifeGoalRepository;
-import com.finance.moneyowl.repository.PortfolioRepository;
-import com.finance.moneyowl.repository.UserRepository;
+import com.finance.moneyowl.repository.*;
 import com.finance.moneyowl.service.Interface.SimulatorService;
 import org.springframework.stereotype.Service;
 
@@ -25,16 +20,20 @@ public class SimulatorServiceImpl implements SimulatorService {
     private final LiabilityRepository liabilityRepository;
     private final LifeGoalRepository lifeGoalRepository;
     private final UserRepository userRepository;
+    private final GoalTemplateRepository goalTemplateRepository;
+
 
     public SimulatorServiceImpl(
             LifeGoalRepository lifeGoalRepository,
             PortfolioRepository portfolioRepository,
             LiabilityRepository liabilityRepository,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            GoalTemplateRepository goalTemplateRepository ) {
         this.lifeGoalRepository = lifeGoalRepository;
         this.portfolioRepository = portfolioRepository;
         this.liabilityRepository = liabilityRepository;
         this.userRepository = userRepository;
+        this.goalTemplateRepository = goalTemplateRepository;
     }
 
     @Override
@@ -176,6 +175,7 @@ public class SimulatorServiceImpl implements SimulatorService {
 
         LifeGoalRequestDTO dto = new LifeGoalRequestDTO();
 
+        dto.setGoalId(goal.getLifeGoalId().toString()); // ✅ IMPORTANT
         dto.setTemplateId(goal.getTemplateId());
         dto.setName(goal.getName());
         dto.setIcon(goal.getIcon());
@@ -184,12 +184,11 @@ public class SimulatorServiceImpl implements SimulatorService {
         dto.setIsLoan(goal.getIsLoan());
         dto.setRoi(goal.getRoi());
         dto.setLoanDuration(goal.getLoanDuration());
-
-        // ⚠️ userId is OPTIONAL in response but allowed
         dto.setUserId(goal.getUser().getUserId());
 
         return dto;
     }
+
 
     @Override
     public LifeGoalResponseDTO createLifeGoal(LifeGoalRequestDTO request) {
@@ -298,7 +297,63 @@ public class SimulatorServiceImpl implements SimulatorService {
         lifeGoalRepository.save(goal);
     }
 
+    @Override
+    public void deleteLifeGoal(String goalId) {
 
+        UUID uuid = UUID.fromString(goalId);
 
+        LifeGoal goal = lifeGoalRepository.findById(uuid)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Life goal not found with id: " + goalId));
 
+        lifeGoalRepository.delete(goal);
+    }
+
+    @Override
+    public GoalTemplateListResponse getGoalTemplates() {
+
+        List<GoalTemplate> templates = goalTemplateRepository.findAll();
+
+        GoalTemplateListResponse response = new GoalTemplateListResponse();
+        response.setTemplates(
+                templates.stream()
+                        .map(this::toGoalTemplateDTO)
+                        .toList()
+        );
+
+        return response;
+    }
+
+    @Override
+    public GoalTemplateDTO getGoalTemplateById(String templateId) {
+
+        if (templateId == null || templateId.isBlank()) {
+            throw new MoneyowlApplicationException(
+                    "INVALID_TEMPLATE_ID",
+                    "TemplateId cannot be null or empty"
+            );
+        }
+
+        GoalTemplate template = goalTemplateRepository
+                .findById(templateId)
+                .orElseThrow(() -> new MoneyowlApplicationException(
+                        "TEMPLATE_NOT_FOUND",
+                        "Goal template not found"
+                ));
+
+        return toGoalTemplateDTO(template);
+    }
+
+    private GoalTemplateDTO toGoalTemplateDTO(GoalTemplate template) {
+
+        GoalTemplateDTO dto = new GoalTemplateDTO();
+        dto.setTemplateId(template.getTemplateId());
+        dto.setName(template.getName());
+        dto.setIcon(template.getIcon());
+        dto.setDefaultRoi(template.getDefaultRoi());
+        dto.setIsLoanAllowed(template.getIsLoanAllowed());
+
+        return dto;
+    }
 }

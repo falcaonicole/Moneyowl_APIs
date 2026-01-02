@@ -46,13 +46,53 @@ public class SimulatorController implements SimulatorApi {
     }
 
     @Override
-    public ResponseEntity<Void> updateLifeGoal(
+    public ResponseEntity<ApiMessageResponse> updateLifeGoal(
             String goalId,
             LifeGoalRequestDTO lifeGoalRequestDTO) {
 
         simulatorService.updateLifeGoal(goalId, lifeGoalRequestDTO);
-        return ResponseEntity.ok().build();
+
+        ApiMessageResponse response =
+                new ApiMessageResponse("Life goal updated successfully");
+
+        return ResponseEntity.ok(response);
     }
+
+    @Override
+    public ResponseEntity<ApiMessageResponse> deleteLifeGoal(String goalId) {
+
+        simulatorService.deleteLifeGoal(goalId);
+
+        return ResponseEntity.ok(
+                new ApiMessageResponse("Life goal deleted successfully")
+        );
+    }
+
+    @Override
+    public ResponseEntity<GoalTemplateListResponse> getGoalTemplates() {
+
+        GoalTemplateListResponse response =
+                simulatorService.getGoalTemplates();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public ResponseEntity<GoalTemplateDTO> getGoalTemplateById(
+            String templateId) {
+
+        GoalTemplateDTO response =
+                simulatorService.getGoalTemplateById(templateId);
+
+        return ResponseEntity.ok(response);
+    }
+
+
+
+
+
+
+
 
 
 

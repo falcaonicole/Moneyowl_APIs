@@ -8,35 +8,12 @@ spring:
   main:
     debug: false
 
-springdoc:
-  api-docs:
-    path: /api-docs
-  swagger-ui:
-    path: /swagger-ui-custom.html
-    operationsSorter: method
-
----
-# Local Server
-spring:
-  config:
-    activate:
-      on-profile: local
-
   #DB Url Config
   datasource:
     driver-class-name: org.postgresql.Driver
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
-
-  #Ollama AI LLM Config
-  #  ai:
-  #    ollama:
-  #      base-url: http://localhost:11434
-  #      chat:
-  #        model: llama3.1 # Must support function calling
-  #        options:
-  #          temperature: 0.7 # Creativity level
 
   #Groq AI LLM Config
   ai:
@@ -85,7 +62,9 @@ management:
     db:
       enabled: true
 
-
-# LOGGING #
-#logging.level.org.springframework=DEBUG
-#logging.level.com.finance.moneyowl=DEBUG
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui-custom.html
+    operationsSorter: method
