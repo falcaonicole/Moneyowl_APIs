@@ -14,7 +14,7 @@ public class AIChatServiceImpl {
         this.chatClient = builder
                 // Register the default system prompt
                 .defaultSystem("You are a Professional Financial Assistant in India. " +
-                        "You analyze portfolio data provided by the tools and answer any Portfolio related queries asked by the User. " +
+                        "You analyze portfolio and Liability data provided by the tools and answer any Portfolio or Liability related queries asked by the User. " +
                         "Always answer in clear, concise markdown format suitable for a mobile app.")
                 .defaultTools("getUserPortfolioData", "getUserLiabilities")
                 .build();
