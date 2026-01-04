@@ -35,6 +35,7 @@ public class GrowthGraphCalculatorServiceImpl implements GrowthGraphCalculatorSe
     private UserServiceImpl
             userService;
     private final ChatClient chatClient;
+    private static final BigDecimal INFLATION_RATE = new BigDecimal("4");
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -164,58 +165,21 @@ public class GrowthGraphCalculatorServiceImpl implements GrowthGraphCalculatorSe
             log.error("User with Requested Id does not Exists");
             throw new ResourceNotFoundException("User with Requested Id does not Exists");
         }
-        return getNetWorthGrowthRateWithAdjustedInflation(userId, duration, new BigDecimal("0.04"));
-    }
-
-    public Map<String, BigDecimal> getNetWorthGrowthRateWithAdjustedInflation(Long userId, Integer duration, BigDecimal inflationRate) {
-        // 1. Get the Nominal Net Worth (Total accumulated amount per year)
-        Map<String, BigDecimal> nominalNetWorthMap = getNetWorthGrowthRate(userId, duration);
-
-        // 2. Sort the data by Year (Integer) to ensure chronological order.
-        // This is required to correctly calculate the difference between Year T and Year T-1.
-        TreeMap<Integer, BigDecimal> sortedNominalMap = new TreeMap<>();
-        for (Map.Entry<String, BigDecimal> entry : nominalNetWorthMap.entrySet()) {
-            try {
-                sortedNominalMap.put(Integer.parseInt(entry.getKey()), entry.getValue());
-            } catch (NumberFormatException e) {
-                log.error("Skipping Invalid Year Key {}", entry.getKey());
-            }
-        }
-        Map<String, BigDecimal> realGrowthAmountMap = new LinkedHashMap<>();
-
-        int baseYear = LocalDate.now().getYear();
-
-        BigDecimal onePlusInflation = BigDecimal.ONE.add(inflationRate);
-        BigDecimal previousRealNetWorth = BigDecimal.ZERO;
-        boolean isFirstRecord = true;
-
-        for (Map.Entry<Integer, BigDecimal> entry : sortedNominalMap.entrySet()) {
-            int currentYear = entry.getKey();
-            BigDecimal nominalTotal = entry.getValue();
-            BigDecimal currentRealNetWorth;
-
-            int yearsFromBase = currentYear - baseYear;
-
-            if (yearsFromBase <= 0) {
-                currentRealNetWorth = nominalTotal;
-            } else {
-                BigDecimal discountFactor = onePlusInflation.pow(yearsFromBase, MathContext.DECIMAL64);
-                currentRealNetWorth = nominalTotal.divide(discountFactor, 2, RoundingMode.HALF_UP);
-            }
-            BigDecimal realGrowthAmount;
-
-            if (isFirstRecord) {
-                realGrowthAmount = currentRealNetWorth;
-                isFirstRecord = false;
-            } else {
-                realGrowthAmount = currentRealNetWorth.subtract(previousRealNetWorth);
-            }
-
-            realGrowthAmountMap.put(String.valueOf(currentYear), realGrowthAmount.setScale(2, RoundingMode.HALF_UP));
-            previousRealNetWorth = currentRealNetWorth;
+        Map<Integer, BigDecimal> totalAssets = getProjectedYearEndInflationAdjustedAssetValue(userId, duration);
+        Map<Integer, BigDecimal> totalLiabilities = getProjectedYearEndLiability(userId, duration);
+        if (totalAssets == null) totalAssets = new HashMap<>();
+        if (totalLiabilities == null) totalLiabilities = new HashMap<>();
+        Map<String, BigDecimal> yoyNetWorth = new LinkedHashMap<>();
+        for (Integer year : totalAssets.keySet()) {
+            BigDecimal assetValue = totalAssets.get(year);
+            if (assetValue == null) assetValue = BigDecimal.ZERO;
+            BigDecimal liabilityValue = totalLiabilities.get(year);
+            if (liabilityValue == null) liabilityValue = BigDecimal.ZERO;
+            BigDecimal netWorth = assetValue.subtract(liabilityValue);
+            yoyNetWorth.put(year.toString(), netWorth);
         }
         log.info("End GrowthGraphCalculatorServiceImpl :: getNetWorthGrowthRateWithAdjustedInflation");
-        return realGrowthAmountMap;
+        return yoyNetWorth;
     }
 
     //Helper Methods
@@ -250,6 +214,54 @@ public class GrowthGraphCalculatorServiceImpl implements GrowthGraphCalculatorSe
         }
         log.info("End GrowthGraphCalculatorServiceImpl :: getProjectedYearEndAssetValue");
         return projectedValues;
+    }
+
+    public Map<Integer, BigDecimal> getProjectedYearEndInflationAdjustedAssetValue(Long userId, int years) {
+            log.info("Start GrowthGraphCalculatorServiceImpl :: getProjectedYearEndInflationAdjustedAssetValue");
+
+            PortfolioDTO userPortfolio = userService.getUserPortfolio(userId);
+            Integer currentYear = LocalDate.now().getYear();
+
+            Map<AssetClass, BigDecimal> values = new EnumMap<>(AssetClass.class);
+            values.put(AssetClass.EQUITY, safe(userPortfolio.getEquity()));
+            values.put(AssetClass.DEBT, safe(userPortfolio.getDebt()));
+            values.put(AssetClass.CASH_AND_LIQUID, safe(userPortfolio.getCashAndLiquid()));
+            values.put(AssetClass.GOLD, safe(userPortfolio.getGold()));
+            values.put(AssetClass.REAL_ESTATE, safe(userPortfolio.getRealEstate()));
+            values.put(AssetClass.FIXED_INCOME, safe(userPortfolio.getFixedIncome()));
+
+            Map<Integer, BigDecimal> projectedValues = new LinkedHashMap<>();
+
+            BigDecimal inflationDenominator = BigDecimal.ONE.add(
+                    INFLATION_RATE.divide(ONE_HUNDRED, MC)
+            );
+
+            for (int year = 1; year <= years; year++) {
+                BigDecimal yearEndAssetValue = BigDecimal.ZERO;
+
+                for (var entry : values.entrySet()) {
+                    AssetClass asset = entry.getKey();
+                    BigDecimal startValue = entry.getValue();
+
+                    BigDecimal nominalRate = ASSET_GROWTH_RATES.getOrDefault(asset, BigDecimal.ZERO);
+
+                    BigDecimal nominalNumerator = BigDecimal.ONE.add(
+                            nominalRate.divide(ONE_HUNDRED, MC)
+                    );
+                    BigDecimal realGrowthMultiplier = nominalNumerator.divide(inflationDenominator, MC);
+
+                    BigDecimal endValue = startValue
+                            .multiply(realGrowthMultiplier, MC)
+                            .setScale(2, RoundingMode.HALF_UP);
+                    entry.setValue(endValue);
+                    yearEndAssetValue = yearEndAssetValue.add(endValue);
+                }
+                projectedValues.put(currentYear, yearEndAssetValue);
+                currentYear++;
+            }
+
+            log.info("End GrowthGraphCalculatorServiceImpl :: getProjectedYearEndInflationAdjustedAssetValue");
+            return projectedValues;
     }
 
     //LiabilityCalculators
@@ -338,11 +350,6 @@ public class GrowthGraphCalculatorServiceImpl implements GrowthGraphCalculatorSe
                 return liability.getAmount();
         }
     }
-
-    // =========================================================================
-    // FINANCIAL FORMULAS (The Core Logic)
-    // =========================================================================
-
     /**
      * SCENARIO A: EMI Based Loans (Principal decreases monthly)
      * Formula: B = P * [ (1+r)^n - (1+r)^p ] / [ (1+r)^n - 1 ]

@@ -11,8 +11,11 @@ import com.finance.moneyowl.repository.RoleRepository;
 import com.finance.moneyowl.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -99,12 +102,10 @@ public class AuthenticationServiceImpl {
 
     public LoginResponse login(LoginRequest request) {
         log.info("Start AuthenticationServiceImpl :: login");
-        // 1. Authenticate via Spring Security
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
 
-        // 2. Check Verification status
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> {
                     log.error("User with provided email already exists - {}", request.getEmail());
@@ -122,5 +123,21 @@ public class AuthenticationServiceImpl {
 
         log.info("End AuthenticationServiceImpl :: login");
         return new LoginResponse(jwtToken, "Login successful");
+    }
+
+    public Long getLoggedInUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null ||
+                !authentication.isAuthenticated() ||
+                authentication instanceof AnonymousAuthenticationToken) {
+            throw new MoneyowlApplicationException("User not authenticated");
+        }
+
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new MoneyowlApplicationException("Logged in user not found in database"));
+
+        return user.getUserId();
     }
 }

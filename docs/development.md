@@ -35,6 +35,12 @@ Under Build and Run Select
 
 Click Apply and OK
 
+Open Project Settings → Search Maven → 
+Under Importing → Select correct JDK 21 version as JDK for Importer and Add `-Dspring.profiles.active=local` under VM Options for Importer.
+Under Runner → Add `spring.profiles.active=local` under Environment Variables and `-Dspring.profiles.active=local` under VM Options for Importer and again select the correct JDK 21 version.
+
+Click on Apply and Ok.
+
 ***Setup Github credentials on your IDE***
 - Create a Personal Access Token (PAT) in GitHub
 - When IntelliJ prompts for GitHub authentication, use the PAT instead of your password
