@@ -68,3 +68,12 @@ springdoc:
   swagger-ui:
     path: /swagger-ui-custom.html
     operationsSorter: method
+
+twilio:
+  account-sid: ${TWILIO_ACCOUNT_SID}
+  auth-token: ${TWILIO_AUTH_TOKEN}
+  from-number: ${SENDER_MOB_NO}
+
+otp:
+  expiry-minutes: ${EXP_IN_MIN}
+  max-attempts: ${MAX_ATTEMPTS}

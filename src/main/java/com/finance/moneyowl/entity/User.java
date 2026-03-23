@@ -3,7 +3,7 @@ package com.finance.moneyowl.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -14,30 +14,19 @@ import java.util.List;
 @Builder
 public class User {
 
-    public User(String firstName, String lastName, String email, String address, String mobNo) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.address = address;
-        this.mobNo = mobNo;
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long userId;
 
-    @Column(name = "first_name")
-    private String firstName;
-
-    @Column(name = "last_name")
-    private String lastName;
-
-    @Column(name = "email")
-    private String email;
+    @Column(name = "full_name")
+    private String fullName;
 
     @Column(name = "address")
     private String address;
+
+    @Column(name = "email")
+    private String email;
 
     @Column(name = "mob_no")
     private String mobNo;
@@ -45,17 +34,20 @@ public class User {
     @Column(name = "password")
     private String password;
 
+    @Column(name = "user_type")
+    private String userType;
+
     @Column(name = "is_active")
     private Boolean isActive;
 
-    @Column(name = "otp")
-    private String otp;
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
     @Column(name = "is_verified")
-    private Boolean isVerified;
-
-    @Column(name = "user_type")
-    private String userType;
+    private boolean isVerified;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
@@ -67,10 +59,5 @@ public class User {
     @ToString.Exclude
     private List<Roles> roles;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    private Portfolio portfolio;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Liability> liabilities = new ArrayList<>();
 
 }

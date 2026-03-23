@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.*;
 
 @ControllerAdvice
 @Slf4j
@@ -16,6 +16,16 @@ public class MoneyOwlAppExceptionHandler extends ResponseEntityExceptionHandler 
     @ExceptionHandler(MoneyowlApplicationException.class)
     public ResponseEntity<Error> handleMoneyOwlException(MoneyowlApplicationException e) {
         return new ResponseEntity<>(new Error(INTERNAL_SERVER_ERROR.getReasonPhrase(), e.getErrorMessage()), INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Error> ResourceNotFoundException(ResourceNotFoundException e) {
+        return new ResponseEntity<>(new Error(NOT_FOUND.getReasonPhrase(), e.getErrorMessage()), NOT_FOUND);
+    }
+
+    @ExceptionHandler(UnAuthorisedException.class)
+    public ResponseEntity<Error> UnAuthorisedException(UnAuthorisedException e) {
+        return new ResponseEntity<>(new Error(UNAUTHORIZED.getReasonPhrase(), e.getErrorMessage()), UNAUTHORIZED);
     }
 }
 

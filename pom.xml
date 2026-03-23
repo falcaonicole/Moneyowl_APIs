@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
@@ -12,7 +12,7 @@
     <artifactId>moneyowl</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <name>moneyowl</name>
-    <description>MoneyOwl Finance APIs</description>
+    <description>MoneyOwl APIs</description>
 
     <url/>
     <licenses>
@@ -31,6 +31,7 @@
         <java.version>21</java.version>
         <openapi-generator-version>7.2.0</openapi-generator-version>
         <spring-ai.version>1.0.0-M6</spring-ai.version> <!-- Check for latest version -->
+        <spring-cloud.version>2025.1.1</spring-cloud.version>
     </properties>
 
     <repositories>
@@ -46,6 +47,7 @@
 
     <dependencyManagement>
         <dependencies>
+
             <dependency>
                 <groupId>org.springframework.ai</groupId>
                 <artifactId>spring-ai-bom</artifactId>
@@ -53,6 +55,16 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
+            <!-- Add it when we need more coud capabilities -->
+            <!--            <dependency>-->
+            <!--                <groupId>org.springframework.cloud</groupId>-->
+            <!--                <artifactId>spring-cloud-dependencies</artifactId>-->
+            <!--                <version>${spring-cloud.version}</version>-->
+            <!--                <type>pom</type>-->
+            <!--                <scope>import</scope>-->
+            <!--            </dependency>-->
+
         </dependencies>
     </dependencyManagement>
 
@@ -181,6 +193,52 @@
             <artifactId>spring-ai-openai-spring-boot-starter</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.twilio.sdk</groupId>
+            <artifactId>twilio</artifactId>
+            <version>11.3.3</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+            <version>3.2.3</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- Feign Dependencies Start -->
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+            <version>4.3.1</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.openfeign</groupId>
+            <artifactId>feign-hc5</artifactId>
+            <version>13.8</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.openfeign</groupId>
+            <artifactId>feign-jackson</artifactId>
+            <version>13.8</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- Feign Dependencies End -->
+
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-mongodb</artifactId>
+            <version>5.0.3</version>
+            <scope>compile</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -206,6 +264,7 @@
                             </templateDirectory>
                             <configOptions>
                                 <additionalModelTypeAnnotations>
+                                    @lombok.experimental.SuperBuilder
                                     @lombok.Builder
                                     @lombok.NoArgsConstructor
                                     @lombok.AllArgsConstructor

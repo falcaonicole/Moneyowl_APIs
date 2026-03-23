@@ -1,43 +1,28 @@
 package com.finance.moneyowl.service.impl;
 
-import com.finance.moneyowl.entity.Liability;
-import com.finance.moneyowl.entity.Portfolio;
 import com.finance.moneyowl.entity.User;
 import com.finance.moneyowl.exceptions.ResourceNotFoundException;
-import com.finance.moneyowl.generatedmodels.LiabilityDTO;
-import com.finance.moneyowl.generatedmodels.PortfolioDTO;
-import com.finance.moneyowl.generatedmodels.UserDTO;
+import com.finance.moneyowl.generatedmodels.UserRequest;
 import com.finance.moneyowl.generatedmodels.UserResponse;
 import com.finance.moneyowl.repository.UserRepository;
-import com.finance.moneyowl.service.Interface.UserService;
-import jakarta.transaction.Transactional;
+import com.finance.moneyowl.service.interfaces.UserService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.time.LocalDateTime;
+
+import static com.finance.moneyowl.utils.ErrorMessageConstants.LOG_TEMPLATE;
+import static com.finance.moneyowl.utils.ErrorMessageConstants.USER_NOT_FOUND;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class UserServiceImpl implements UserService {
 
-    @Autowired
     UserRepository userRepository;
-
-    @Autowired
     ModelMapper modelMapper;
-
-    @Override
-    public UserResponse saveUser(UserDTO userDTO) {
-        log.info("Start UserServiceImpl:: saveUser - {}", userDTO);
-        User user = new User(userDTO.getFirstName(), userDTO.getLastName(), userDTO.getEmail(), userDTO.getAddress(), userDTO.getMobNo());
-        /* Encrypt Password then save */
-        user.setPassword(userDTO.getPassword());
-        User userEntity = userRepository.save(user);
-        log.info("Start UserServiceImpl:: saveUser");
-        return modelMapper.map(userEntity, UserResponse.class);
-    }
 
     @Override
     public UserResponse getUser(Long id) {
@@ -48,18 +33,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String putUser(Long id, UserDTO userDTO) {
-        log.info("Start UserServiceImpl:: putUser - {}", userDTO);
-        User user = getUserById(id);
-        user.setFirstName(userDTO.getFirstName());
-        user.setLastName(userDTO.getLastName());
-        user.setAddress(userDTO.getAddress());
-        user.setEmail(userDTO.getEmail());
-        user.setMobNo(userDTO.getMobNo());
+    public String updateUser(Long userId, UserRequest UserRequest) {
+        log.info("Start UserServiceImpl:: updateUser - {}", UserRequest);
+        User user = User.builder()
+                .fullName(UserRequest.getFullName())
+                .address(UserRequest.getAddress())
+                .email(UserRequest.getEmail())
+                .mobNo(UserRequest.getMobNo())
+                .updatedAt(LocalDateTime.now())
+                .build();
 
         userRepository.save(user);
-        log.info("Start UserServiceImpl:: putUser");
-        return "User Info Updated Successfully";
+        log.info("End UserServiceImpl:: updateUser");
+        return "User details Updated Successfully";
     }
 
     @Override
@@ -71,47 +57,27 @@ public class UserServiceImpl implements UserService {
         return "User Deleted Successfully";
     }
 
-    @Override
-    @Transactional
-    public List<LiabilityDTO> getAllUserLiabilities(Long userId) {
-        log.info("Start UserServiceImpl:: getAllUserLiabilities - {}", userId);
-        User user = getUserById(userId);
-        List<Liability> liabilities = user.getLiabilities();
-        log.info("Start UserServiceImpl:: getAllUserLiabilities");
-        return liabilities.stream()
-                .map(liability -> modelMapper.map(liability, LiabilityDTO.class))
-                .toList();
-    }
-
-    @Override
-    public PortfolioDTO getUserPortfolio(Long userId) {
-        log.info("Start UserServiceImpl:: getUserPortfolio - {}", userId);
-        User user = getUserById(userId);
-        Portfolio portfolio = user.getPortfolio();
-        if (portfolio == null) {
-            log.error("User's Portfolio is Empty. Please create your Portfolio first");
-            throw new ResourceNotFoundException("User's Portfolio is Empty. Please create your Portfolio first");
-        }
-        log.info("Start UserServiceImpl:: getUserPortfolio");
-        return modelMapper.map(portfolio, PortfolioDTO.class);
-    }
-
     public User getUserById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> {
-                    log.error("User with given userId does not exist");
-                    return new ResourceNotFoundException("User with given userId does not exist");
+                    log.error(LOG_TEMPLATE, USER_NOT_FOUND, id);
+                    return new ResourceNotFoundException(USER_NOT_FOUND, id);
                 });
     }
 
-    public Boolean existsById(Long Id){
-        log.info("Start UserServiceImpl:: existsById - {}", Id);
-        return userRepository.existsById(Id);
-    }
-
+    // For Email based Login
     public User findByEmail(String email) {
         log.info("Start UserServiceImpl:: findByEmail - {}", email);
-        return userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User with given Email Id does not exist"));
+        return userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND, email));
+    }
+
+    @Override
+    public User findByMobNo(String mobNo) {
+        return userRepository.findByMobNo(mobNo)
+                .orElseThrow(() -> {
+                    log.error(LOG_TEMPLATE, USER_NOT_FOUND, mobNo);
+                    return new ResourceNotFoundException(USER_NOT_FOUND, mobNo);
+                });
     }
 
 }

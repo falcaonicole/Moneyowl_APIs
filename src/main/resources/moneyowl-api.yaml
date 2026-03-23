@@ -1,13 +1,13 @@
 openapi: 3.0.1
 
 info:
-  version: 1.0.0
+  version: 2.0.0
   title: MoneyOwl
   description: MoneyOwl APIs for personal finance management.
 
 paths:
   ###################### UserController APIs ####################################
-  '/save/user':
+  '/create/user':
     post:
       tags:
         - User
@@ -18,7 +18,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/userDTO'
+              $ref: '#/components/schemas/userRequest'
       responses:
         '201':
           description: Created a new User Successfully and returns newly added User.
@@ -49,7 +49,7 @@ paths:
         '504':
           $ref: '#/components/responses/504'
 
-  /user/get/{userId}:
+  '/users/{userId}':
     get:
       tags:
         - User
@@ -62,7 +62,8 @@ paths:
           required: true
           description: Unique identifier of the user
           schema:
-            type: long
+            type: integer
+            format: int64
       responses:
         '200':
           description: Successfully retrieved user details.
@@ -93,7 +94,6 @@ paths:
         '504':
           $ref: '#/components/responses/504'
 
-  /user/put/{userId}:
     put:
       tags:
         - User
@@ -106,14 +106,15 @@ paths:
           required: true
           description: Unique identifier of the user to update
           schema:
-            type: long
+            type: integer
+            format: int64
       requestBody:
         required: true
         description: User details to update
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/userDTO'
+              $ref: '#/components/schemas/userRequest'
       responses:
         '200':
           description: User updated successfully.
@@ -145,7 +146,6 @@ paths:
         '504':
           $ref: '#/components/responses/504'
 
-  /user/delete/{userId}:
     delete:
       tags:
         - User
@@ -190,735 +190,14 @@ paths:
         '504':
           $ref: '#/components/responses/504'
 
-  /user/getAllUserLiabilities/{userId}:
-    get:
-      tags:
-        - User
-      summary: Get all liabilities for a user
-      description: Retrieves the list of liabilities associated with the specified user ID.
-      operationId: getAllUserLiabilities
-      parameters:
-        - name: userId
-          in: path
-          required: true
-          description: Unique identifier of the user whose liabilities are being retrieved
-          schema:
-            type: long
-      responses:
-        '200':
-          description: Successfully retrieved user liabilities.
-          content:
-            application/json:
-              schema:
-                title: liabilityDTOResponse
-                type: object
-                required:
-                  - data
-                properties:
-                  data:
-                    type: object
-                    title: liabilityResponseDetails
-                    required:
-                      - items
-                    properties:
-                      items:
-                        type: array
-                        items:
-                          $ref: '#/components/schemas/liabilityDTO'
-        '400':
-          $ref: '#/components/responses/400'
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '405':
-          $ref: '#/components/responses/405'
-        '415':
-          $ref: '#/components/responses/415'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-        '502':
-          $ref: '#/components/responses/502'
-        '503':
-          $ref: '#/components/responses/503'
-        '504':
-          $ref: '#/components/responses/504'
-
-
-  /user/getUserPortfolio/{userId}:
-    get:
-      tags:
-        - User
-      summary: Get user portfolio
-      description: Retrieves the portfolio information for the specified user ID.
-      operationId: getUserPortfolio
-      parameters:
-        - name: userId
-          in: path
-          required: true
-          description: Unique identifier of the user whose portfolio is being retrieved
-          schema:
-            type: long
-      responses:
-        '200':
-          description: Successfully retrieved user portfolio.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/portfolioDTO'
-        '400':
-          $ref: '#/components/responses/400'
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '405':
-          $ref: '#/components/responses/405'
-        '415':
-          $ref: '#/components/responses/415'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-        '502':
-          $ref: '#/components/responses/502'
-        '503':
-          $ref: '#/components/responses/503'
-        '504':
-          $ref: '#/components/responses/504'
-
   ###################### PORTFOLIO APIs ########################
-  '/save/portfolio/{userId}':
-    post:
-      tags:
-        - Portfolio
-      summary: Create and save a new Portfolio.
-      description: Creates a portfolio entry linked to a specific user.
-      operationId: savePortfolio
-      parameters:
-        - name: userId
-          in: path
-          required: true
-          description: Unique identifier of the user to associate the portfolio with
-          schema:
-            type: long
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/portfolioDTO'
-      responses:
-        '201':
-          description: Created a new Portfolio successfully.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/portfolioResponse'
-        '400':
-          $ref: '#/components/responses/400'
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '405':
-          $ref: '#/components/responses/405'
-        '415':
-          $ref: '#/components/responses/415'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-        '502':
-          $ref: '#/components/responses/502'
-        '503':
-          $ref: '#/components/responses/503'
-        '504':
-          $ref: '#/components/responses/504'
-
-  '/portfolio/get/{portfolioId}':
-    get:
-      tags:
-        - Portfolio
-      summary: Get Portfolio by ID
-      description: Retrieves portfolio details for the specified portfolio ID.
-      operationId: getPortfolioById
-      parameters:
-        - name: portfolioId
-          in: path
-          required: true
-          description: Unique identifier of the portfolio
-          schema:
-            type: long
-      responses:
-        '200':
-          description: Successfully retrieved portfolio details.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/portfolioResponse'
-        '400':
-          $ref: '#/components/responses/400'
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '405':
-          $ref: '#/components/responses/405'
-        '415':
-          $ref: '#/components/responses/415'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-        '502':
-          $ref: '#/components/responses/502'
-        '503':
-          $ref: '#/components/responses/503'
-        '504':
-          $ref: '#/components/responses/504'
-
-  '/portfolio/update/{userId}':
-    put:
-      tags:
-        - Portfolio
-      summary: Update existing Portfolio
-      description: Updates portfolio details for the specified User ID.
-      operationId: updatePortfolio
-      parameters:
-        - name: userId
-          in: path
-          required: true
-          description: Unique identifier of the user owning the portfolio
-          schema:
-            type: long
-      requestBody:
-        required: true
-        description: Portfolio details to update
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/portfolioDTO'
-      responses:
-        '200':
-          description: Portfolio updated successfully.
-          content:
-            application/json:
-              schema:
-                type: string
-                example: "Portfolio updated successfully."
-        '400':
-          $ref: '#/components/responses/400'
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '405':
-          $ref: '#/components/responses/405'
-        '415':
-          $ref: '#/components/responses/415'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-        '502':
-          $ref: '#/components/responses/502'
-        '503':
-          $ref: '#/components/responses/503'
-        '504':
-          $ref: '#/components/responses/504'
-
-  '/portfolio/delete/{portfolioId}':
-    delete:
-      tags:
-        - Portfolio
-      summary: Delete Portfolio by ID
-      description: Deletes the specified portfolio from the system.
-      operationId: deletePortfolio
-      parameters:
-        - name: portfolioId
-          in: path
-          required: true
-          description: Unique identifier of the portfolio to delete
-          schema:
-            type: long
-      responses:
-        '200':
-          description: Portfolio deleted successfully.
-          content:
-            application/json:
-              schema:
-                type: string
-                example: "Portfolio deleted successfully."
-        '400':
-          $ref: '#/components/responses/400'
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '405':
-          $ref: '#/components/responses/405'
-        '415':
-          $ref: '#/components/responses/415'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-        '502':
-          $ref: '#/components/responses/502'
-        '503':
-          $ref: '#/components/responses/503'
-        '504':
-          $ref: '#/components/responses/504'
 
   ####################### LIABILITY APIs #####################
-  '/save/liability/{userId}':
-    post:
-      tags:
-        - Liability
-      summary: Create and save a new Liability.
-      description: Creates a liability entry linked to a specific user.
-      operationId: saveLiability
-      parameters:
-        - name: userId
-          in: path
-          required: true
-          description: Unique identifier of the user to associate the liability with
-          schema:
-            type: long
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/liabilityDTO'
-      responses:
-        '200':
-          description: Liability saved successfully.
-          content:
-            application/json:
-              schema:
-                type: string
-                example: "Liability saved successfully."
-        '400':
-          $ref: '#/components/responses/400'
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '405':
-          $ref: '#/components/responses/405'
-        '415':
-          $ref: '#/components/responses/415'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-        '502':
-          $ref: '#/components/responses/502'
-        '503':
-          $ref: '#/components/responses/503'
-        '504':
-          $ref: '#/components/responses/504'
 
-  '/liability/get/{liabilityId}':
-    get:
-      tags:
-        - Liability
-      summary: Get Liability by ID
-      description: Retrieves liability details for the specified liability ID.
-      operationId: getLiabilityById
-      parameters:
-        - name: liabilityId
-          in: path
-          required: true
-          description: Unique identifier of the liability
-          schema:
-            type: long
-      responses:
-        '200':
-          description: Successfully retrieved liability details.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/liabilityResponse'
-        '400':
-          $ref: '#/components/responses/400'
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '405':
-          $ref: '#/components/responses/405'
-        '415':
-          $ref: '#/components/responses/415'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-        '502':
-          $ref: '#/components/responses/502'
-        '503':
-          $ref: '#/components/responses/503'
-        '504':
-          $ref: '#/components/responses/504'
-
-  '/liability/update/{liabilityId}':
-    put:
-      tags:
-        - Liability
-      summary: Update existing Liability
-      description: Updates liability details for the specified Liability ID.
-      operationId: updateLiability
-      parameters:
-        - name: liabilityId
-          in: path
-          required: true
-          description: Unique identifier of the liability to update
-          schema:
-            type: long
-      requestBody:
-        required: true
-        description: Liability details to update
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/liabilityDTO'
-      responses:
-        '200':
-          description: Liability updated successfully.
-          content:
-            application/json:
-              schema:
-                type: string
-                example: "Liability updated successfully."
-        '400':
-          $ref: '#/components/responses/400'
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '405':
-          $ref: '#/components/responses/405'
-        '415':
-          $ref: '#/components/responses/415'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-        '502':
-          $ref: '#/components/responses/502'
-        '503':
-          $ref: '#/components/responses/503'
-        '504':
-          $ref: '#/components/responses/504'
-
-  '/liability/delete/{liabilityId}':
-    delete:
-      tags:
-        - Liability
-      summary: Delete Liability by ID
-      description: Deletes the specified liability from the system.
-      operationId: deleteLiability
-      parameters:
-        - name: liabilityId
-          in: path
-          required: true
-          description: Unique identifier of the liability to delete
-          schema:
-            type: long
-      responses:
-        '200':
-          description: Liability deleted successfully.
-          content:
-            application/json:
-              schema:
-                type: string
-                example: "Liability deleted successfully."
-        '400':
-          $ref: '#/components/responses/400'
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '405':
-          $ref: '#/components/responses/405'
-        '415':
-          $ref: '#/components/responses/415'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-        '502':
-          $ref: '#/components/responses/502'
-        '503':
-          $ref: '#/components/responses/503'
-        '504':
-          $ref: '#/components/responses/504'
   ####################### GrowthRate APIs #####################
-  '/get/individualAssetGrowth/{userId}/{duration}':
-    get:
-      tags:
-        - AssetGrowthRate
-      summary: Retrieve Individual Asset Growth Rate
-      description: Fetches the projected growth rate and details for individual assets in the user's portfolio over a specified duration using path parameters.
-      operationId: getIndividualAssetGrowthRate
-      parameters:
-        - name: userId
-          in: path
-          required: true
-          description: Unique identifier of the user (Long).
-          schema:
-            type: integer
-            format: int64
-            example: 1001
-        - name: duration
-          in: path
-          required: true
-          description: The projection duration in years (Integer).
-          schema:
-            type: integer
-            format: int32
-            example: 5
-      responses:
-        '200':
-          description: Successfully retrieved asset growth rates.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/portfolioResponse'
-        '400':
-          $ref: '#/components/responses/400'
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '405':
-          $ref: '#/components/responses/405'
-        '415':
-          $ref: '#/components/responses/415'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-        '502':
-          $ref: '#/components/responses/502'
-        '503':
-          $ref: '#/components/responses/503'
-        '504':
-          $ref: '#/components/responses/504'
-
-  '/get/netWorthGrowthRate/{userId}/{duration}':
-    get:
-      tags:
-        - AssetGrowthRate
-      summary: Retrieve Net Worth Growth Rate
-      description: Returns a Map where the Key is the Year and the Value is the projected Net Worth (or Growth Rate).
-      operationId: getNetWorthGrowthRate
-      parameters:
-        - name: userId
-          in: path
-          required: true
-          description: Unique identifier of the user (Long).
-          schema:
-            type: integer
-            format: int64
-            example: 1001
-        - name: duration
-          in: path
-          required: true
-          description: The projection duration in years (Integer).
-          schema:
-            type: integer
-            format: int32
-            example: 5
-      responses:
-        '200':
-          description: Successfully retrieved net worth projection.
-          content:
-            application/json:
-              schema:
-                type: object
-                description: Map<Year, Value>
-                additionalProperties:
-                  type: number
-                example:
-                  "2025": 67676578.50
-                  "2026": 7878.00
-                  "2027": 85000.00
-        '400':
-          $ref: '#/components/responses/400'
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '405':
-          $ref: '#/components/responses/405'
-        '415':
-          $ref: '#/components/responses/415'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-        '502':
-          $ref: '#/components/responses/502'
-        '503':
-          $ref: '#/components/responses/503'
-        '504':
-          $ref: '#/components/responses/504'
-
-  '/get/netWorthGrowthWithInflation/{userId}/{duration}':
-    get:
-      tags:
-        - AssetGrowthRate
-      summary: Retrieve Net Worth Growth Rate with Inflation
-      description: Returns a Map where the Key is the Year and the Value is the projected Net Worth (or Growth Rate).
-      operationId: getNetWorthGrowthRateWithInflation
-      parameters:
-        - name: userId
-          in: path
-          required: true
-          description: Unique identifier of the user (Long).
-          schema:
-            type: integer
-            format: int64
-            example: 1001
-        - name: duration
-          in: path
-          required: true
-          description: The projection duration in years (Integer).
-          schema:
-            type: integer
-            format: int32
-            example: 5
-      responses:
-        '200':
-          description: Successfully retrieved net worth projection.
-          content:
-            application/json:
-              schema:
-                type: object
-                description: Map<Year, Value>
-                additionalProperties:
-                  type: number
-                example:
-                  "2025": 67676578.50
-                  "2026": 7878.00
-                  "2027": 85000.00
-        '400':
-          $ref: '#/components/responses/400'
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '405':
-          $ref: '#/components/responses/405'
-        '415':
-          $ref: '#/components/responses/415'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-        '502':
-          $ref: '#/components/responses/502'
-        '503':
-          $ref: '#/components/responses/503'
-        '504':
-          $ref: '#/components/responses/504'
-
-  '/get/netWorthGrowthRateWithAdjustedInflation/{userId}/{duration}':
-    get:
-      tags:
-        - AssetGrowthRate
-      summary: Retrieve Net Worth Growth Rate with Inflation Adjusted Growth
-      description: Returns a Map where the Key is the Year and the Value is the projected Net Worth (or Growth Rate).
-      operationId: getNetWorthGrowthRateWithAdjustedInflation
-      parameters:
-        - name: userId
-          in: path
-          required: true
-          description: Unique identifier of the user (Long).
-          schema:
-            type: integer
-            format: int64
-            example: 1001
-        - name: duration
-          in: path
-          required: true
-          description: The projection duration in years (Integer).
-          schema:
-            type: integer
-            format: int32
-            example: 5
-      responses:
-        '200':
-          description: Successfully retrieved net worth projection.
-          content:
-            application/json:
-              schema:
-                type: object
-                description: Map<Year, Value>
-                additionalProperties:
-                  type: number
-                example:
-                  "2025": 67676578.50
-                  "2026": 7878.00
-                  "2027": 85000.00
-        '400':
-          $ref: '#/components/responses/400'
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '405':
-          $ref: '#/components/responses/405'
-        '415':
-          $ref: '#/components/responses/415'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-        '502':
-          $ref: '#/components/responses/502'
-        '503':
-          $ref: '#/components/responses/503'
-        '504':
-          $ref: '#/components/responses/504'
 
   ####################### AUTH APIs ############################
-  '/register':
+  '/auth/register':
     post:
       tags:
         - Authentication
@@ -932,7 +211,7 @@ paths:
             schema:
               $ref: '#/components/schemas/signupRequest'
       responses:
-        '200':
+        '201':
           description: Registration successful
           content:
             text/plain:
@@ -962,19 +241,19 @@ paths:
         '504':
           $ref: '#/components/responses/504'
 
-  '/login':
+  '/auth/login/email':
     post:
       tags:
         - Authentication
       summary: User Login
-      description: Authenticates a user and returns a JWT token if the account is verified.
+      description: Authenticates a user with their registered Email and returns a JWT token if the account is verified.
       operationId: loginUser
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/loginRequest'
+              $ref: '#/components/schemas/emailLoginRequest'
       responses:
         '200':
           description: Login successful
@@ -1005,13 +284,58 @@ paths:
         '504':
           $ref: '#/components/responses/504'
 
-  '/verifyOTP':
+  '/auth/send/otp':
+    get:
+      tags:
+        - Authentication
+      summary: Send Email/Mob No OTP to User
+      operationId: sendOtp
+      parameters:
+        - name: otpType
+          in: path
+          required: true
+          description: OTP Type. 0 is mobno 1 is email
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OTP send to user.
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "OTP send successfully."
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+
+  '/auth/verify/email-otp':
     post:
       tags:
         - Authentication
       summary: Verify Email OTP
       description: Verifies the OTP sent to the user's email to activate the account.
-      operationId: verifyOtp
+      operationId: verifyEmailOtp
       requestBody:
         required: true
         content:
@@ -1048,26 +372,27 @@ paths:
           $ref: '#/components/responses/503'
         '504':
           $ref: '#/components/responses/504'
-############## SurvivalMode APIs #############################
-  /simulator/survival:
+
+  '/auth/verify/mobno-otp':
     post:
       tags:
-        - Simulator
-      summary: Calculate survival runway
-      operationId: calculateSurvival
+        - Authentication
+      summary: Verify Mobile Number OTP
+      description: Verifies the OTP sent to the user's Mobile No to activate the account.
+      operationId: verifyMobOtp
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SurvivalRequestDTO'
+              $ref: '#/components/schemas/otpRequest'
       responses:
         '200':
-          description: Survival simulation result
+          description: Login successful
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SurvivalResponseDTO'
+                $ref: '#/components/schemas/loginResponse'
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -1090,149 +415,10 @@ paths:
           $ref: '#/components/responses/503'
         '504':
           $ref: '#/components/responses/504'
+  ############## SurvivalMode APIs #############################
 
- ######################## LifeGoals API'S ##########################
-  '/api/goals/{userId}':
-    get:
-      tags:
-        - Simulator
-      summary: Get all life goals for a user
-      operationId: getUserGoals
-      parameters:
-        - name: userId
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: List of life goals
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/LifeGoalsListResponse'
-        '404':
-          $ref: '#/components/responses/404'
+  ######################## LifeGoals API'S ##########################
 
-  '/api/goals':
-    post:
-      tags:
-        - Simulator
-      summary: Create life goal
-      operationId: createLifeGoal
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/LifeGoalRequestDTO'
-      responses:
-        '200':
-          description: Life goal created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/LifeGoalResponseDTO'
-        '400':
-          $ref: '#/components/responses/400'
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-        '500':
-          $ref: '#/components/responses/500'
-
-  /api/goals/{goalId}:
-    put:
-      tags:
-        - Simulator
-      summary: Update an existing life goal
-      description: Updates details of a life goal using goalId
-      operationId: updateLifeGoal
-      parameters:
-        - name: goalId
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/LifeGoalRequestDTO'
-      responses:
-        '200':
-          description: Life goal updated successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiMessageResponse'
-        '400':
-          description: Invalid request
-        '404':
-          description: Life goal not found
-
-    delete:
-      tags:
-        - Simulator
-      summary: Delete life goal
-      operationId: deleteLifeGoal
-      parameters:
-        - name: goalId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Life goal deleted successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiMessageResponse'
-        '404':
-          $ref: '#/components/responses/404'
-
-  /api/goal-templates:
-    get:
-      tags:
-        - Simulator
-      summary: Get all life goal templates
-      operationId: getGoalTemplates
-      responses:
-        '200':
-          description: List of goal templates
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GoalTemplateListResponse'
-
-  /api/goal-templates/{templateId}:
-    get:
-      tags:
-        - Simulator
-      summary: Get goal template by templateId
-      operationId: getGoalTemplateById
-      parameters:
-        - name: templateId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Goal template details
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GoalTemplateDTO'
-        '400':
-          $ref: '#/components/responses/400'
-        '404':
-          $ref: '#/components/responses/404'
-        '500':
-          $ref: '#/components/responses/500'
 
 
 
@@ -1377,25 +563,17 @@ components:
           description: Detailed Error message
           type: string
 
-    userDTO:
+    userRequest:
       description: User Entity Data Transfer Object
       type: object
       required:
-        - firstName
-        - lastName
+        - fullName
         - email
         - address
         - mobNo
-        - password
       properties:
-        firstName:
-          description: User first name
-          type: string
-          x-field-extra-annotation: '@jakarta.validation.constraints.NotBlank'
-          minLength: 1
-          maxLength: 150
-        lastName:
-          description: User last name
+        fullName:
+          description: User full name
           type: string
           x-field-extra-annotation: '@jakarta.validation.constraints.NotBlank'
           minLength: 1
@@ -1424,45 +602,38 @@ components:
           example: "9876543210"
           minLength: 10
           maxLength: 15
-        password:
-          description: User account password
-          type: string
-          x-field-extra-annotation: |
-            @jakarta.validation.constraints.NotBlank
-            @jakarta.validation.constraints.Size(min = 8, max = 64)
-          example: "StrongP@ssw0rd"
-          minLength: 8
-          maxLength: 64
+
 
     userResponse:
       description: User Entity Response
       type: object
       required:
         - userId
-        - firstName
-        - lastName
-        - email
+        - fullName
         - address
+        - email
         - mobNo
         - isActive
         - isVerified
         - userType
+        - roles
       properties:
         userId:
           description: User Id in DB
-          type: long
-        firstName:
-          description: User first name
+          type: integer
+          format: int64
+        fullName:
+          description: User full name
           type: string
           x-field-extra-annotation: '@jakarta.validation.constraints.NotBlank'
           minLength: 1
           maxLength: 150
-        lastName:
-          description: User last name
+        address:
+          description: User address
           type: string
           x-field-extra-annotation: '@jakarta.validation.constraints.NotBlank'
           minLength: 1
-          maxLength: 150
+          maxLength: 255
         email:
           description: User email address
           type: string
@@ -1471,12 +642,6 @@ components:
             @jakarta.validation.constraints.NotBlank
             @jakarta.validation.constraints.Email
           example: "user@example.com"
-          maxLength: 255
-        address:
-          description: User address
-          type: string
-          x-field-extra-annotation: '@jakarta.validation.constraints.NotBlank'
-          minLength: 1
           maxLength: 255
         mobNo:
           description: User mobile number
@@ -1495,151 +660,17 @@ components:
           type: boolean
         userType:
           description: Type of User
-          type: String
-
-    liabilityDTO:
-      description: Liability Entity Data Transfer Object
-      type: object
-      required:
-        - liabilityType
-        - liabilitySubType
-        - startDate
-        - endDate
-        - roi
-        - duration
-        - amount
-        - status
-      properties:
-        liabilityId:
-          type: long
-        liabilityType:
           type: string
-        liabilitySubType:
-          type: string
-        startDate:
-          type: string
-          format: date
-        endDate:
-          type: string
-          format: date
-        roi:
-          type: number
-          format: BigDecimal
-        duration:
-          type: number
-          format: BigDecimal
-        amount:
-          type: number
-          format: BigDecimal
-        status:
-          type: string
-
-    liabilityResponse:
-      type: object
-      properties:
-        liabilityId:
-          type: long
-          description: The auto-generated ID of the liability
-        liabilityType:
-          type: string
-        liabilitySubType:
-          type: string
-        startDate:
-          type: string
-          format: date
-        endDate:
-          type: string
-          format: date
-        roi:
-          type: number
-          format: BigDecimal
-        duration:
-          type: number
-          format: BigDecimal
-        amount:
-          type: number
-          format: BigDecimal
-        status:
-          type: string
-
-    portfolioDTO:
-      description: Portfolio Entity Data Transfer Object
-      type: object
-      required:
-        - portfolioId
-        - equity
-        - debt
-        - cashAndLiquid
-        - gold
-        - realEstate
-        - lifeInsurance
-        - fixedIncome
-        - otherIncome
-      properties:
-        portfolioId:
-          type: long
-        equity:
-          type: number
-          format: BigDecimal
-        debt:
-          type: number
-          format: BigDecimal
-        cashAndLiquid:
-          type: number
-          format: BigDecimal
-        gold:
-          type: number
-          format: BigDecimal
-        realEstate:
-          type: number
-          format: BigDecimal
-        lifeInsurance:
-          type: number
-          format: BigDecimal
-        fixedIncome:
-          type: number
-          format: BigDecimal
-        otherIncome:
-          type: number
-          format: BigDecimal
-
-    portfolioResponse:
-      type: object
-      properties:
-        portfolioId:
-          type: long
-          description: The auto-generated ID of the portfolio
-        equity:
-          type: number
-          format: BigDecimal
-        debt:
-          type: number
-          format: BigDecimal
-        cashAndLiquid:
-          type: number
-          format: BigDecimal
-        gold:
-          type: number
-          format: BigDecimal
-        realEstate:
-          type: number
-          format: BigDecimal
-        lifeInsurance:
-          type: number
-          format: BigDecimal
-        fixedIncome:
-          type: number
-          format: BigDecimal
-        otherIncome:
-          type: number
-          format: BigDecimal
+        roles:
+          description: User's Role's
+          type: array
+          items:
+            type: string
 
     signupRequest:
       type: object
       properties:
-        firstName:
-          type: string
-        lastName:
+        fullName:
           type: string
         email:
           type: string
@@ -1650,7 +681,7 @@ components:
         mobNo:
           type: string
 
-    loginRequest:
+    emailLoginRequest:
       type: object
       properties:
         email:
@@ -1660,138 +691,667 @@ components:
 
     otpRequest:
       type: object
+      required:
+        - identifier
+        - otp
       properties:
-        email:
+        identifier:
           type: string
         otp:
           type: string
+          description: 6 digit OTP sent to the mobile number
+          example: "482931"
+          pattern: "^\\d{6}$"
+
+    otpCacheModel:
+      type: object
+      description: Internal OTP cache entry stored in Caffeine
+      properties:
+        otp:
+          type: string
+          description: Generated OTP
+          example: "482931"
+        attempts:
+          type: integer
+          format: int32
+          description: Number of failed verification attempts
+          example: 1
+          minimum: 0
+          maximum: 3
+        createdAt:
+          type: string
+          format: date-time
+          description: OTP creation timestamp
+          example: "2026-02-08T10:15:30Z"
 
     loginResponse:
       type: object
       properties:
-        token:
+        jwtToken:
+          type: string
+        refreshToken:
           type: string
         message:
           type: string
 
-    SurvivalMode:
-      type: string
-      enum:
-        - ZOMBIE
-        - LEAN
-        - COMFORT
+    ########### SETU-AUTH MODELs ##########
 
-    SurvivalRequestDTO:
-      type: object
-      required:
-        - userId
-        - mode
-      properties:
-        userId:
-          type: integer
-          format: int64
-          x-field-extra-annotation: '@jakarta.validation.constraints.NotNull'
-        mode:
-          type: string
-
-    SurvivalResponseDTO:
+    setuAuthTokenRequest:
       type: object
       properties:
-        liquidAssets:
-          type: number
-          format: bigdecimal
-        monthlyBurn:
-          type: number
-          format: bigdecimal
-        survivalMonths:
-          type: number
-          format: bigdecimal
-        survivalYears:
-          type: number
-          format: bigdecimal
-        isMonthlyExpensePresent:
-          type: boolean
-        monthlyExpenseId:
-          type: integer
-          format: int64
+        clientID:
+          type: string
+        grant_type:
+          type: string
+        secret:
+          type: string
 
-    LifeGoalRequestDTO:
+    setuAuthTokenResponse:
       type: object
-      required:
-        - userId
-        - templateId
-        - cost
-        - year
       properties:
-        userId:
-          type: integer
-          format: int64
-        templateId:
+        access_token:
           type: string
-        goalId:
+        refresh_token:
           type: string
-        name:
-          type: string
-        icon:
-          type: string
-        cost:
-          type: number
-          format: bigdecimal
-        year:
-          type: integer
-        isLoan:
-          type: boolean
-        roi:
-          type: number
-          format: double
-        loanDuration:
-          type: integer
 
-    LifeGoalResponseDTO:
+    ########### SETU-CONSENT MODELs ##########
+
+    consentRequestUIResponse:
       type: object
+      description: Response of create consent request response send to the UI.
+      properties:
+        url:
+          type: string
+          format: uri
+          description: The webview URL to redirect the user to for consent approval
+          example: "https://fiu-uat.setu.co/v2/consents/webview/cffe6e11-7277-498c-a370-f436276f4fc0"
+        fiTypes:
+          type: array
+          description: Financial Information types requested
+          items:
+            type: string
+
+    createConsentResponse:
+      type: object
+      description: Response model for a create consent request in the Setu AA Sandbox
       properties:
         id:
           type: string
+          format: uuid
+          description: Unique identifier for the consent request
+          example: "cffe6e11-7277-498c-a370-f436276f4fc0"
 
-    LifeGoalsListResponse:
+        url:
+          type: string
+          format: uri
+          description: The webview URL to redirect the user to for consent approval
+          example: "https://fiu-uat.setu.co/v2/consents/webview/cffe6e11-7277-498c-a370-f436276f4fc0"
+
+        status:
+          type: string
+          description: Current status of the consent
+          #          enum: [ PENDING, ACTIVE, REJECTED, REVOKED, PAUSED ]
+          example: "PENDING"
+
+        detail:
+          type: object
+          description: Detailed parameters of the requested consent
+          $ref: '#/components/schemas/consentDetail'
+
+        redirectUrl:
+          type: string
+          format: uri
+          description: URL where the AA will redirect the user back after approval/rejection
+          example: "https://app.moneyowl.com/aa/consent-callback"
+
+        context:
+          type: array
+          description: Additional contextual metadata
+          items:
+            type: object
+            additionalProperties: true
+
+        PAN:
+          type: string
+          description: Permanent Account Number (if passed)
+          example: "AHIP7878F"
+
+        usage:
+          type: object
+          description: Tracks how many times data has been fetched using this consent
+          $ref: '#/components/schemas/consentUsage'
+
+        accountsLinked:
+          type: array
+          description: Array of accounts linked to this consent (populated after approval)
+          items:
+            type: object
+            additionalProperties: true
+
+        tags:
+          type: array
+          description: Tags associated with the consent
+          items:
+            type: string
+
+        traceId:
+          type: string
+          description: Identifier for tracing API calls through the SETU/AA system
+          example: "1-699a9b0e-7e60308c0a2ebfae73567fbc"
+
+    getConsentResponse:
+      type: object
+      description: Response model for a GET consent request in the Setu AA Sandbox
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the consent request
+          example: "cffe6e11-7277-498c-a370-f436276f4fc0"
+
+        url:
+          type: string
+          format: uri
+          description: The webview URL to redirect the user to for consent approval
+          example: "https://fiu-uat.setu.co/v2/consents/webview/cffe6e11-7277-498c-a370-f436276f4fc0"
+
+        status:
+          type: string
+          description: Current status of the consent
+          #          enum: [ PENDING, ACTIVE, REJECTED, REVOKED, PAUSED ]
+          example: "PENDING"
+
+        detail:
+          type: object
+          description: Detailed parameters of the requested consent
+          $ref: '#/components/schemas/consentDetail'
+
+        redirectUrl:
+          type: string
+          format: uri
+          description: URL where the AA will redirect the user back after approval/rejection
+          example: "https://app.moneyowl.com/aa/consent-callback"
+
+        context:
+          type: array
+          description: Additional contextual metadata
+          items:
+            type: object
+            additionalProperties: true
+
+        PAN:
+          type: string
+          description: Permanent Account Number (if passed)
+          example: "AHIP7878F"
+
+        usage:
+          type: object
+          description: Tracks how many times data has been fetched using this consent
+          $ref: '#/components/schemas/consentUsage'
+
+        accountsLinked:
+          type: array
+          description: Array of accounts linked to this consent (populated after approval)
+          items:
+            type: object
+            additionalProperties: true
+
+        tags:
+          type: array
+          description: Tags associated with the consent
+          items:
+            type: string
+
+        traceId:
+          type: string
+          description: Identifier for tracing API calls through the SETU/AA system
+          example: "1-699a9b0e-7e60308c0a2ebfae73567fbc"
+
+    createConsentRequest:
+      type: object
+      required:
+        - consentDuration
+        - vua
+        - dataRange
+        - fiTypes
+      properties:
+
+        consentDuration:
+          $ref: '#/components/schemas/consentDuration'
+
+        vua:
+          type: string
+          example: 999999999@onemoney
+          description: Virtual User Address issued by AA
+
+        dataRange:
+          $ref: '#/components/schemas/dataRange'
+
+        fiTypes:
+          type: array
+          description: Financial Information types requested
+          items:
+            type: string
+
+        context:
+          type: array
+          description: Additional consent context (optional in sandbox)
+          items:
+            type: object
+
+    createDataFetchRequest:
+      type: object
+      required:
+        - consentId
+        - dataRange
+        - format
+      properties:
+        consentId:
+          type: string
+          description: Unique identifier for the consent request
+          example: "cffe6e11-7277-498c-a370-f436276f4fc0"
+
+        dataRange:
+          $ref: '#/components/schemas/dataRange'
+
+        format:
+          type: string
+          description: Response Format
+          example: "json"
+
+    createDataFetchResponse:
+      type: object
+      description: Response model for a create data fetch request in the Setu AA Sandbox
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the consent request
+          example: "cffe6e11-7277-498c-a370-f436276f4fc0"
+        status:
+          type: string
+          description: Current status of the consent
+          #          enum: [ PENDING, ACTIVE, REJECTED, REVOKED, PAUSED ]
+          example: "PENDING"
+        dataRange:
+          type: object
+          description: Date range for which financial data is requested
+          $ref: '#/components/schemas/dataRange'
+        format:
+          type: string
+          description: Response Format
+          example: "json"
+        consentId:
+          type: string
+          description: Unique identifier for the consent request
+          example: "cffe6e11-7277-498c-a370-f436276f4fc0"
+        traceId:
+          type: string
+          description: Identifier for tracing API calls through the SETU/AA system
+          example: "1-699a9b0e-7e60308c0a2ebfae73567fbc"
+
+    consentDuration:
+      type: object
+      required:
+        - unit
+        - value
+      properties:
+        unit:
+          type: string
+          example: "MONTH"
+
+        value:
+          type: string
+          example: "24"
+
+    consentDetail:
       type: object
       properties:
-        userId:
+        consentStart:
+          type: string
+          format: string
+          example: "2026-02-22T05:58:38.274Z"
+
+        consentMode:
+          type: string
+          #          enum: [ STORE, VIEW, STORE_VIEW ]
+          example: "STORE"
+
+        fetchType:
+          type: string
+          #          enum: [ ONETIME, PERIODIC ]
+          example: "PERIODIC"
+
+        purpose:
+          type: object
+          $ref: '#/components/schemas/purpose'
+
+        vua:
+          type: string
+          description: Virtual User Address (AA ID)
+          example: "9833756340@onemoney"
+
+        frequency:
+          type: object
+          description: Frequency of data fetch
+          $ref: '#/components/schemas/frequency'
+
+        consentTypes:
+          type: array
+          items:
+            type: string
+          #            enum: [ PROFILE, SUMMARY, TRANSACTIONS ]
+          example: [ "PROFILE", "SUMMARY", "TRANSACTIONS" ]
+
+        dataLife:
+          type: object
+          description: Duration for which the FIU can store the data
+          $ref: '#/components/schemas/dataLife'
+
+        fiTypes:
+          type: array
+          description: List of Financial Information Types
+          items:
+            type: string
+            example: "DEPOSIT"
+          example: [ "DEPOSIT" ]
+
+        dataRange:
+          type: object
+          description: Date range for which financial data is requested
+          $ref: '#/components/schemas/dataRange'
+
+        consentExpiry:
+          type: string
+          example: "2028-02-22T05:58:38.274Z"
+
+
+    purpose:
+      type: object
+      properties:
+        category:
+          type: object
+          properties:
+            type:
+              type: string
+              example: "string"
+        code:
+          type: string
+          description: ReBIT purpose code
+          example: "101"
+        refUri:
+          type: string
+          format: uri
+          example: "https://api.rebit.org.in/aa/purpose/101.xml"
+        text:
+          type: string
+          example: "We request access to your financial information only to help you view and manage your wealth in one place. Your data is shared securely with your consent and is never accessed without your approval."
+
+
+    frequency:
+      type: object
+      properties:
+        unit:
+          type: string
+          #          enum: [ HOUR, DAY, MONTH, YEAR ]
+          example: "DAY"
+        value:
           type: integer
-        goals:
-          type: array
-          items:
-            $ref: '#/components/schemas/LifeGoalRequestDTO'
+          example: 1
 
-    ApiMessageResponse:
+    dataLife:
       type: object
       properties:
-        message:
+        unit:
           type: string
-          example: Life goal updated successfully
+          #          enum: [ MONTH, YEAR, DAY ]
+          example: "YEAR"
+        value:
+          type: integer
+          example: 1
 
-    GoalTemplateListResponse:
+    dataRange:
       type: object
       properties:
-        templates:
-          type: array
-          items:
-            $ref: '#/components/schemas/GoalTemplateDTO'
-
-    GoalTemplateDTO:
-      type: object
-      properties:
-        templateId:
+        from:
           type: string
+          example: "2022-12-01T00:00:00.000Z"
+        to:
+          type: string
+          example: "2023-08-12T00:00:00.000Z"
+
+
+    consentUsage:
+      type: object
+      properties:
+        lastUsed:
+          type: string
+          nullable: true
+          example: null
+        count:
+          type: string
+          example: "0"
+    ######################### SETU-FI-MODELs #######################
+
+    setuFIDataResponse:
+      type: object
+      description: Response model for a GET FI data request in the Setu AA Sandbox
+      properties:
+        consentId:
+          type: string
+          description: Unique identifier for the consent request
+          example: "cffe6e11-7277-498c-a370-f436276f4fc0"
+        id:
+          type: string
+          description: Unique identifier for the consent request
+          example: "cffe6e11-7277-498c-a370-f436276f4fc0"
+        fips:
+          type: array
+          description: List/Array of FIPs
+          $ref: '#/components/schemas/fips'
+
+    fips:
+      type: object
+      description: List of Accounts
+      properties:
+        accounts:
+          type: array
+          description: List/Array of Accounts
+          $ref: '#/components/schemas/accounts'
+
+    accounts:
+      type: object
+      description: List of Account Data
+      properties:
+        accountData:
+          type: array
+          description: List/Array of Accounts
+          $ref: '#/components/schemas/accountData'
+
+    accountData:
+      type: object
+      description: FI Account Data Object
+      properties:
+        account:
+          type: object
+          description: Nested Object of Account Data
+          $ref: '#/components/schemas/account'
+
+    account:
+      type: object
+      additionalProperties: true
+      discriminator:
+        propertyName: type
+        mapping:
+          equities: '#/components/schemas/equityAccount'
+      #          deposit: '#/components/schemas/depositAccount'
+      properties:
+        linkedAccRef:
+          type: string
+        maskedAccNumber:
+          type: string
+        type:
+          type: string
+        version:
+          type: string
+
+    equityAccount:
+      allOf:
+        - $ref: '#/components/schemas/account'
+        - type: object
+          properties:
+            profile:
+              $ref: '#/components/schemas/equityProfile'
+            summary:
+              $ref: '#/components/schemas/equitySummary'
+
+    equityProfile:
+      type: object
+      description: Profile details for the equity account
+      properties:
+        holders:
+          $ref: '#/components/schemas/equityHolders'
+
+    equityHolders:
+      type: object
+      description: Information regarding the account holding pattern and holders
+      properties:
+        type:
+          type: string
+          description: Holding pattern type (e.g., SINGLE, JOINT)
+          example: "SINGLE"
+        holder:
+          type: array
+          description: List of account holders
+          items:
+            $ref: '#/components/schemas/equityHolderDetails'
+
+    equityHolderDetails:
+      type: object
+      description: Demographic and account details of an individual account holder
+      properties:
+        address:
+          type: string
+          description: Full address of the holder
+          example: "H.No. 652 Ahluwalia Ganj, Sirsa 267798"
+        ckycCompliance:
+          type: string
+          description: CKYC compliance status (true/false as string)
+          example: "true"
+        dob:
+          type: string
+          format: date
+          description: Date of birth of the holder in YYYY-MM-DD format
+          example: "2005-04-18"
+        email:
+          type: string
+          format: email
+          description: Email address of the holder
+          example: "ojas56@setu-dummy.com"
+        mobile:
+          type: string
+          description: Mobile number of the holder
+          example: "8225793173"
         name:
           type: string
-        icon:
+          description: Full name of the holder
+          example: "Alisha Upadhyay"
+        nominee:
           type: string
-        defaultRoi:
-          type: number
-          format: double
-        isLoanAllowed:
-          type: boolean
+          description: Nominee registration status
+          example: "REGISTERED"
+        pan:
+          type: string
+          description: PAN (Permanent Account Number) of the holder
+          example: "YJEQG4123X"
+        dematId:
+          type: string
+          description: Demat account identifier
+          example: "IN303760GB77ELSJ"
+        boId:
+          type: string
+          description: Beneficial Owner Identification Number
+          example: "GB77ELSJ"
+        dpId:
+          type: string
+          description: Depository Participant Identification Number
+          example: "IN303760"
+        brokerName:
+          type: string
+          description: Name of the broker/DP
+          example: "AMRAPALI CAPITAL AND FINANCE SERVICES LIMITED"
+
+    equitySummary:
+      type: object
+      description: Summary of the equity account and overall investment values
+      properties:
+        investment:
+          $ref: '#/components/schemas/equityInvestment'
+        currentValue:
+          type: string
+          description: Total current market value of the investments
+          example: "464.34"
+        investmentValue:
+          type: string
+          description: Total initial investment value
+          example: "248108.62999999998"
+
+    equityInvestment:
+      type: object
+      description: Details regarding the equity investments
+      properties:
+        holdings:
+          $ref: '#/components/schemas/equityHoldingsList'
+
+    equityHoldingsList:
+      type: object
+      description: Wrapper for the list of individual holdings
+      properties:
+        holding:
+          type: array
+          description: List of individual holdings
+          items:
+            $ref: '#/components/schemas/equityHoldings'
+
+    equityHoldings:
+      type: object
+      description: Details of a single equity holding
+      properties:
+        description:
+          type: string
+          description: Description or remarks regarding the holding
+          example: ""
+        investmentDateTime:
+          type: string
+          format: date-time
+          description: The date and time when the investment was recorded
+          example: "2021-02-01T12:29:20+00:00"
+        isin:
+          type: string
+          description: ISIN (International Securities Identification Number) of the security
+          example: "GB66YYYX4416"
+        issuerName:
+          type: string
+          description: Name of the issuer or company
+          example: "Dhar and Sons"
+        lastTradedPrice:
+          type: string
+          description: The last traded price (LTP) of the security
+          example: "238.64"
+        rate:
+          type: string
+          description: The rate or average price at which the holding was acquired
+          example: "130.79"
+        units:
+          type: string
+          description: The number of units or shares held
+          example: "1897"
+
+
+
+
+
+
+
 
 
 

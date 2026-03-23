@@ -3,141 +3,117 @@ package com.finance.moneyowl.service.impl;
 import com.finance.moneyowl.entity.Roles;
 import com.finance.moneyowl.entity.User;
 import com.finance.moneyowl.exceptions.MoneyowlApplicationException;
-import com.finance.moneyowl.generatedmodels.LoginRequest;
+import com.finance.moneyowl.exceptions.UnAuthorisedException;
+import com.finance.moneyowl.generatedmodels.EmailLoginRequest;
 import com.finance.moneyowl.generatedmodels.LoginResponse;
 import com.finance.moneyowl.generatedmodels.OtpRequest;
 import com.finance.moneyowl.generatedmodels.SignupRequest;
 import com.finance.moneyowl.repository.RoleRepository;
 import com.finance.moneyowl.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
 
+import static com.finance.moneyowl.utils.ErrorMessageConstants.*;
+
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class AuthenticationServiceImpl {
 
-    @Autowired
+    Random random;
     private UserRepository userRepository;
-    @Autowired
     private UserServiceImpl userService;
-    @Autowired
     private PasswordEncoder passwordEncoder;
-    @Autowired
     private JwtTokenServiceImpl jwtService;
-    @Autowired
     private AuthenticationManager authenticationManager;
-    @Autowired
-    private SentOTPEmailServiceImpl emailService;
-    @Autowired
+    private OtpEmailServiceImpl otpEmailService;
+    private OtpMobNoServiceImpl otpMobNoService;
     private UserDetailsService userDetailsService;
-
-    @Autowired
     private RoleRepository roleRepository;
 
     public String register(SignupRequest request) {
         log.info("Start AuthenticationServiceImpl :: register");
 
         if (userRepository.existsByEmail(request.getEmail())) {
-            log.error("User with provided email already exists - {}", request.getEmail());
-            throw new MoneyowlApplicationException("User with provided email already exists");
+            log.error(LOG_TEMPLATE, USER_ALREADY_EXISTS, request.getEmail());
+            throw new MoneyowlApplicationException(USER_ALREADY_EXISTS, request.getEmail());
         }
         Roles defaultRole = roleRepository.findByRoleName("ROLE_BASIC")
                 .orElseThrow(() -> {
-                    log.error("User with provided email already exists - {}", "ROLE_BASIC");
-                    return new MoneyowlApplicationException("Error: Role not found.");
+                    log.error("Requested Role does not exists - {}", "ROLE_BASIC");
+                    return new MoneyowlApplicationException("Requested Role does not exists");
                 });
 
-        // Generate 6 digit OTP
-        String otp = String.valueOf(new Random().nextInt(900000) + 100000);
-
         User user = User.builder()
-                .firstName(request.getFirstName())
-                .lastName(request.getLastName())
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
+                .fullName(request.getFullName())
                 .address(request.getAddress())
+                .email(request.getEmail())
                 .mobNo(request.getMobNo())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .userType("ROLE_BASIC")
                 .isActive(true)
                 .isVerified(false)
-                .otp(otp)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
                 .roles(List.of(defaultRole))
-                .userType("ROLE_BASIC")
                 .build();
 
         userRepository.save(user);
-
-        // Send OTP
-        emailService.sendOtpEmail(user.getEmail(), otp);
+        //Then let user select verification mode as Email/MobNo
+        otpMobNoService.sendOtp(request.getMobNo());
         log.info("End AuthenticationServiceImpl :: register");
-        return "User registered successfully. Please check email for OTP Verification.";
+        return "User registered successfully. Please check email/SMS for OTP Verification.";
     }
 
-    public String verifyOtp(OtpRequest request) {
+    public String verifyEmailOtp(OtpRequest otpRequest) {
         log.info("Start AuthenticationServiceImpl :: verifyOtp");
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new MoneyowlApplicationException("User not found"));
-
-        if (user.getOtp() != null && user.getOtp().equals(request.getOtp())) {
-            user.setIsVerified(true);
-            user.setOtp(null);
-            userRepository.save(user);
-            log.info("End AuthenticationServiceImpl :: verifyOtp");
+        if (otpEmailService.verifyOtp(otpRequest)) {
             return "Account verified successfully. Please Login to access account";
         } else {
-            log.error("Invalid OTP - {}", request.getOtp());
-            throw new MoneyowlApplicationException("Invalid OTP");
+            throw new UnAuthorisedException(INCORRECT_OTP, otpRequest.getOtp());
+        }
+
+    }
+
+    // generate JWT if OTP Login is successful
+    public LoginResponse verifyMobNoOtp(OtpRequest otpRequest) {
+        log.info("Start AuthenticationServiceImpl :: verifyMobNoOtp");
+        if (otpMobNoService.verifyOtp(otpRequest)) {
+            User userDetails = userService.findByMobNo(otpRequest.getIdentifier());
+            String jwtToken = jwtService.generateToken(userDetails);
+
+            log.info("End AuthenticationServiceImpl :: verifyMobNoOtp");
+            return new LoginResponse(jwtToken, "", "Login successful");
+        } else {
+            throw new UnAuthorisedException(INCORRECT_OTP, otpRequest.getOtp());
         }
     }
 
-    public LoginResponse login(LoginRequest request) {
+    public LoginResponse login(EmailLoginRequest request) {
         log.info("Start AuthenticationServiceImpl :: login");
+
+        User user = userService.findByEmail(request.getEmail());
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
 
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> {
-                    log.error("User with provided email already exists - {}", request.getEmail());
-                    return new MoneyowlApplicationException("User with provided email already exists");
-                });
-
-        if (!user.getIsVerified()) {
-            log.error("Account not verified. Please verify your email - {}", request.getEmail());
+        if (!user.isVerified()) {
+            log.error(LOG_TEMPLATE, "Account not verified. Please verify your email - {}", request.getEmail());
             throw new MoneyowlApplicationException("Account not verified. Please verify your email.");
         }
-
-        // 3. Generate Token
-        User userDetails = userService.findByEmail(request.getEmail());
-        String jwtToken = jwtService.generateToken(userDetails);
+        String jwtToken = jwtService.generateToken(user);
 
         log.info("End AuthenticationServiceImpl :: login");
-        return new LoginResponse(jwtToken, "Login successful");
+        return new LoginResponse(jwtToken, "", "Login successful");
     }
 
-    public Long getLoggedInUserId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication == null ||
-                !authentication.isAuthenticated() ||
-                authentication instanceof AnonymousAuthenticationToken) {
-            throw new MoneyowlApplicationException("User not authenticated");
-        }
-
-        String email = authentication.getName();
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new MoneyowlApplicationException("Logged in user not found in database"));
-
-        return user.getUserId();
-    }
 }
