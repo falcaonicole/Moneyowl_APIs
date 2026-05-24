@@ -1138,52 +1138,59 @@ components:
       properties:
         consentId:
           type: string
-          description: Unique identifier for the consent request
-          example: "cffe6e11-7277-498c-a370-f436276f4fc0"
+          example: "b0b2a411-f45e-4c50-9f75-120aa1891398"
         id:
           type: string
-          description: Unique identifier for the consent request
-          example: "cffe6e11-7277-498c-a370-f436276f4fc0"
+          example: "ac7d0a87-3fd0-4155-9926-8b723b470ae8"
+        status:
+          type: string
+          example: "COMPLETED"
+        format:
+          type: string
+          example: "json"
         fips:
           type: array
-          description: List/Array of FIPs
-          $ref: '#/components/schemas/fips'
+          items:
+            $ref: '#/components/schemas/fip'
 
-    fips:
+    fip:
       type: object
-      description: List of Accounts
       properties:
+        fipID:
+          type: string
+          example: "setu-fip"
         accounts:
           type: array
-          description: List/Array of Accounts
-          $ref: '#/components/schemas/accounts'
-
-    accounts:
-      type: object
-      description: List of Account Data
-      properties:
-        accountData:
-          type: array
-          description: List/Array of Accounts
-          $ref: '#/components/schemas/accountData'
+          items:
+            $ref: '#/components/schemas/accountData'
 
     accountData:
       type: object
-      description: FI Account Data Object
       properties:
-        account:
+        FIstatus:
+          type: string
+          example: "READY"
+        maskedAccNumber:
+          type: string
+          example: "XXXXXXXX9355"
+        linkRefNumber:
+          type: string
+          example: "dad38bd8-e863-4412-a146-9098d7941aa6"
+        data:
           type: object
-          description: Nested Object of Account Data
-          $ref: '#/components/schemas/account'
+          properties:
+            account:
+              $ref: '#/components/schemas/account'
 
     account:
-      type: object
-      additionalProperties: true
       discriminator:
         propertyName: type
         mapping:
           equities: '#/components/schemas/equityAccount'
-      #          deposit: '#/components/schemas/depositAccount'
+          #deposit: '#/components/schemas/depositAccount'
+          #mutual_funds: '#/components/schemas/mutualFundsAccount'
+      required:
+        - type
       properties:
         linkedAccRef:
           type: string
@@ -1191,14 +1198,15 @@ components:
           type: string
         type:
           type: string
-        version:
-          type: string
 
     equityAccount:
       allOf:
         - $ref: '#/components/schemas/account'
         - type: object
           properties:
+            version:
+              type: string
+              example: "1.1"
             profile:
               $ref: '#/components/schemas/equityProfile'
             summary:
@@ -1206,145 +1214,114 @@ components:
 
     equityProfile:
       type: object
-      description: Profile details for the equity account
       properties:
         holders:
           $ref: '#/components/schemas/equityHolders'
 
     equityHolders:
       type: object
-      description: Information regarding the account holding pattern and holders
       properties:
         type:
           type: string
-          description: Holding pattern type (e.g., SINGLE, JOINT)
           example: "SINGLE"
         holder:
           type: array
-          description: List of account holders
           items:
             $ref: '#/components/schemas/equityHolderDetails'
 
     equityHolderDetails:
       type: object
-      description: Demographic and account details of an individual account holder
       properties:
         address:
           type: string
-          description: Full address of the holder
           example: "H.No. 652 Ahluwalia Ganj, Sirsa 267798"
         ckycCompliance:
           type: string
-          description: CKYC compliance status (true/false as string)
           example: "true"
         dob:
           type: string
           format: date
-          description: Date of birth of the holder in YYYY-MM-DD format
           example: "2005-04-18"
         email:
           type: string
           format: email
-          description: Email address of the holder
           example: "ojas56@setu-dummy.com"
         mobile:
           type: string
-          description: Mobile number of the holder
           example: "8225793173"
         name:
           type: string
-          description: Full name of the holder
           example: "Alisha Upadhyay"
         nominee:
           type: string
-          description: Nominee registration status
           example: "REGISTERED"
         pan:
           type: string
-          description: PAN (Permanent Account Number) of the holder
           example: "YJEQG4123X"
         dematId:
           type: string
-          description: Demat account identifier
           example: "IN303760GB77ELSJ"
         boId:
           type: string
-          description: Beneficial Owner Identification Number
           example: "GB77ELSJ"
         dpId:
           type: string
-          description: Depository Participant Identification Number
           example: "IN303760"
         brokerName:
           type: string
-          description: Name of the broker/DP
           example: "AMRAPALI CAPITAL AND FINANCE SERVICES LIMITED"
 
     equitySummary:
       type: object
-      description: Summary of the equity account and overall investment values
       properties:
-        investment:
-          $ref: '#/components/schemas/equityInvestment'
         currentValue:
           type: string
-          description: Total current market value of the investments
-          example: "464.34"
+          example: "425.84"
         investmentValue:
           type: string
-          description: Total initial investment value
-          example: "248108.62999999998"
+          example: "113045.28"
+        investment:
+          $ref: '#/components/schemas/equityInvestment'
 
     equityInvestment:
       type: object
-      description: Details regarding the equity investments
       properties:
         holdings:
           $ref: '#/components/schemas/equityHoldingsList'
 
     equityHoldingsList:
       type: object
-      description: Wrapper for the list of individual holdings
       properties:
         holding:
           type: array
-          description: List of individual holdings
           items:
             $ref: '#/components/schemas/equityHoldings'
 
     equityHoldings:
       type: object
-      description: Details of a single equity holding
       properties:
         description:
           type: string
-          description: Description or remarks regarding the holding
           example: ""
         investmentDateTime:
           type: string
           format: date-time
-          description: The date and time when the investment was recorded
-          example: "2021-02-01T12:29:20+00:00"
+          example: "2026-03-22T15:42:24+00:00"
         isin:
           type: string
-          description: ISIN (International Securities Identification Number) of the security
-          example: "GB66YYYX4416"
+          example: "GB77FCTY7160"
         issuerName:
           type: string
-          description: Name of the issuer or company
-          example: "Dhar and Sons"
+          example: "Kar LLC"
         lastTradedPrice:
           type: string
-          description: The last traded price (LTP) of the security
-          example: "238.64"
+          example: "372.71"
         rate:
           type: string
-          description: The rate or average price at which the holding was acquired
-          example: "130.79"
+          example: "438.16"
         units:
           type: string
-          description: The number of units or shares held
-          example: "1897"
+          example: "258"
 
 
 

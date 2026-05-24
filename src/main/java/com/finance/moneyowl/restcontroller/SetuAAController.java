@@ -1,6 +1,7 @@
 package com.finance.moneyowl.restcontroller;
 
 import com.finance.moneyowl.generatedmodels.ConsentRequestUIResponse;
+import com.finance.moneyowl.generatedmodels.CreateDataFetchResponse;
 import com.finance.moneyowl.service.interfaces.SetuAAService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,5 +35,16 @@ public class SetuAAController {
         return new ResponseEntity<>(status, HttpStatus.OK);
     }
 
+    @GetMapping("/create-data-fetch/{userId}/{fiType}")
+    public ResponseEntity<CreateDataFetchResponse> createDataFetch(@PathVariable Long userId, @PathVariable String fiType) {
+        CreateDataFetchResponse status = setuConsentService.createDataFetch(userId, fiType);
+        return new ResponseEntity<>(status, HttpStatus.OK);
+    }
+    
+    @GetMapping("/fetch-fiData/{userId}/{fiType}")
+    public ResponseEntity<String> fetchFiData(@PathVariable Long userId, @PathVariable String fiType) {
+        String status = setuConsentService.fetchFIData(userId, fiType);
+        return new ResponseEntity<>(status, HttpStatus.OK);
+    }
 
 }

@@ -1,6 +1,6 @@
 package com.finance.moneyowl.service.interfaces;
 
-import com.finance.moneyowl.generatedmodels.Account;
+import com.finance.moneyowl.generatedmodels.AccountData;
 import com.finance.moneyowl.generatedmodels.DataRange;
 import com.finance.moneyowl.model.AssetAccount;
 import com.finance.moneyowl.model.UserPortfolioModel;
@@ -21,7 +21,7 @@ public interface MongoService {
 
     UserPortfolioModel getUserPortfolio(Long userId);
 
-    List<Account> getAccountsByFiType(Long userId, String fiType);
+    List<AccountData> getAccountsByFiType(Long userId, String fiType);
 
     String getConsentIdByFiType(Long userId, String fiType);
 

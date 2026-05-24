@@ -6,9 +6,9 @@ import com.finance.moneyowl.generatedmodels.UserRequest;
 import com.finance.moneyowl.generatedmodels.UserResponse;
 import com.finance.moneyowl.repository.UserRepository;
 import com.finance.moneyowl.service.interfaces.UserService;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -17,11 +17,13 @@ import static com.finance.moneyowl.utils.ErrorMessageConstants.LOG_TEMPLATE;
 import static com.finance.moneyowl.utils.ErrorMessageConstants.USER_NOT_FOUND;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class UserServiceImpl implements UserService {
 
+    @Autowired
     UserRepository userRepository;
+
+    @Autowired
     ModelMapper modelMapper;
 
     @Override
@@ -30,6 +32,11 @@ public class UserServiceImpl implements UserService {
         User userEntity = getUserById(id);
         log.info("Start UserServiceImpl:: getUser");
         return modelMapper.map(userEntity, UserResponse.class);
+    }
+
+    @Override
+    public void saveUser(User user) {
+        userRepository.save(user);
     }
 
     @Override

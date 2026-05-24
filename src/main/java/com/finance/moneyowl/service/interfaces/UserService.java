@@ -9,6 +9,8 @@ public interface UserService {
 
     public UserResponse getUser(Long userId);
 
+    public void saveUser(User user);
+
     public String updateUser(Long userId, UserRequest UserRequest);
 
     public String deleteUser(Long userId);

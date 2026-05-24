@@ -2,6 +2,7 @@ package com.finance.moneyowl.service.impl;
 
 import com.finance.moneyowl.entity.User;
 import com.finance.moneyowl.generatedmodels.*;
+import com.finance.moneyowl.model.UserPortfolioModel;
 import com.finance.moneyowl.service.interfaces.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,9 +12,10 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -100,8 +102,8 @@ public class SetuAAServiceImpl implements SetuAAService {
             String token = String.format("Bearer %s", this.fetchAuthToken().getAccessToken());
             String Id = mongoService.getIdByFiType(userId, fiType);
             SetuFIDataResponse fiData = setuFeignClient.getFIData(token, productInstanceId, Id);
-
             //Fetch fiData/getAccount to UserPortfolioModel's AssetAccount and then save in MongoDB
+            saveFIData(fiData, userId, fiType);
             return "FI Data Fetched Successfully";
         } catch (Exception e) {
             return "Error Occurred While Fetching FI Data";
@@ -113,25 +115,44 @@ public class SetuAAServiceImpl implements SetuAAService {
         User user = userService.getUserById(userId);
         CreateConsentRequest createConsentRequest = new CreateConsentRequest();
         createConsentRequest.setFiTypes(List.of(fiType));
-        createConsentRequest.setVua("9833756340@onemoney");
-        /** createConsentRequest.setVua(String.format("%s@onemoney", user.getMobNo())); */
+        //createConsentRequest.setVua("9833756340@onemoney");
+        createConsentRequest.setVua(String.format("%s@onemoney", user.getMobNo()));
         createConsentRequest.setContext(Collections.emptyList());
 
         ConsentDuration duration = new ConsentDuration("MONTH", "24");
         createConsentRequest.setConsentDuration(duration);
 
-        String to = Instant.now().truncatedTo(ChronoUnit.SECONDS).toString();
+        DateTimeFormatter formatter = DateTimeFormatter
+                .ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+                .withZone(ZoneOffset.UTC);
 
-        String from = ZonedDateTime
-                .now(ZoneOffset.UTC)
-                .minusYears(1)
-                .toInstant()
-                .truncatedTo(ChronoUnit.SECONDS).toString();
+        String to = formatter.format(Instant.now());
+
+        String from = formatter.format(
+                ZonedDateTime.now(ZoneOffset.UTC)
+                        .minusYears(1)
+                        .toInstant()
+        );
 
         DataRange dataRange = new DataRange(from, to);
         mongoService.saveDataRangeByFiType(userId, dataRange, fiType);
         createConsentRequest.setDataRange(dataRange);
         log.info("End SetuAAServiceImpl :: buildConsentRequest :: {}", fiType);
         return createConsentRequest;
+    }
+
+    public void saveFIData(SetuFIDataResponse fiData, Long userId, String fiType) {
+        UserPortfolioModel portfolioModel = mongoService.getUserPortfolio(userId);
+        switch (fiType.toLowerCase()) {
+            case "equities" -> {
+                List<AccountData> accountsData = fiData.getFips()
+                        .stream()
+                        .filter(fip -> fip.getAccounts() != null)
+                        .flatMap(fip -> fip.getAccounts().stream())
+                        .collect(Collectors.toList());
+                portfolioModel.getEquities().setAsset(accountsData);
+                mongoService.saveUserPortfolio(portfolioModel);
+            }
+        }
     }
 }

@@ -9,6 +9,7 @@ import com.finance.moneyowl.service.interfaces.UserService;
 import com.finance.moneyowl.utils.OtpGenerator;
 import com.github.benmanes.caffeine.cache.Cache;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -23,7 +24,11 @@ public class OtpEmailServiceImpl implements OtpService {
     private final Cache<String, OtpCacheModel> otpCache;
     @Value("${otp.max-attempts}")
     int maxAttempts;
+
+    @Autowired
     private JavaMailSender mailSender;
+
+    @Autowired
     private UserService userService;
 
     @Override
@@ -69,6 +74,7 @@ public class OtpEmailServiceImpl implements OtpService {
         // Success
         otpCache.invalidate(otpRequest.getIdentifier());
         user.setVerified(true);
+        userService.saveUser(user);
         return true;
 
     }

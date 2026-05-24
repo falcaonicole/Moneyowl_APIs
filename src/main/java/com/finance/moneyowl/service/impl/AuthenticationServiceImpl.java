@@ -12,6 +12,7 @@ import com.finance.moneyowl.repository.RoleRepository;
 import com.finance.moneyowl.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -30,14 +31,32 @@ import static com.finance.moneyowl.utils.ErrorMessageConstants.*;
 public class AuthenticationServiceImpl {
 
     Random random;
+
+    @Autowired
     private UserRepository userRepository;
+
+    @Autowired
     private UserServiceImpl userService;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
     private JwtTokenServiceImpl jwtService;
+
+    @Autowired
     private AuthenticationManager authenticationManager;
+
+    @Autowired
     private OtpEmailServiceImpl otpEmailService;
+
+    @Autowired
     private OtpMobNoServiceImpl otpMobNoService;
+
+    @Autowired
     private UserDetailsService userDetailsService;
+
+    @Autowired
     private RoleRepository roleRepository;
 
     public String register(SignupRequest request) {
@@ -69,7 +88,7 @@ public class AuthenticationServiceImpl {
 
         userRepository.save(user);
         //Then let user select verification mode as Email/MobNo
-        otpMobNoService.sendOtp(request.getMobNo());
+        otpEmailService.sendOtp(request.getEmail());
         log.info("End AuthenticationServiceImpl :: register");
         return "User registered successfully. Please check email/SMS for OTP Verification.";
     }

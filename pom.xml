@@ -233,10 +233,8 @@
         <!-- Feign Dependencies End -->
 
         <dependency>
-            <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-mongodb</artifactId>
-            <version>5.0.3</version>
-            <scope>compile</scope>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
         </dependency>
 
     </dependencies>
@@ -263,6 +261,8 @@
                             <templateDirectory>${project.basedir}/src/main/resources/codegen-templates
                             </templateDirectory>
                             <configOptions>
+                                <useJacksonAnnotation>true</useJacksonAnnotation>
+                                <useOneOfInterfaces>true</useOneOfInterfaces>
                                 <additionalModelTypeAnnotations>
                                     @lombok.experimental.SuperBuilder
                                     @lombok.Builder

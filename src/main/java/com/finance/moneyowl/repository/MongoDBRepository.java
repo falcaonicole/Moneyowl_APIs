@@ -7,4 +7,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface MongoDBRepository extends MongoRepository<UserPortfolioModel, Long> {
+    boolean existsByUserId(Long userId);
+
+    UserPortfolioModel findByUserId(Long userId);
 }

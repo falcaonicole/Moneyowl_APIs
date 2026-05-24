@@ -2,14 +2,14 @@ package com.finance.moneyowl.service.impl;
 
 import com.finance.moneyowl.exceptions.MoneyowlApplicationException;
 import com.finance.moneyowl.exceptions.ResourceNotFoundException;
-import com.finance.moneyowl.generatedmodels.Account;
+import com.finance.moneyowl.generatedmodels.AccountData;
 import com.finance.moneyowl.generatedmodels.DataRange;
 import com.finance.moneyowl.model.AssetAccount;
 import com.finance.moneyowl.model.UserPortfolioModel;
 import com.finance.moneyowl.repository.MongoDBRepository;
 import com.finance.moneyowl.service.interfaces.MongoService;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,10 +19,10 @@ import static com.finance.moneyowl.utils.ErrorMessageConstants.PORTFOLIO_NOT_FOU
 
 @Service
 @Slf4j
-@AllArgsConstructor
 public class MongoServiceImpl implements MongoService {
 
-    private final MongoDBRepository mongoRepository;
+    @Autowired
+    private MongoDBRepository mongoRepository;
 
     @Override
     public UserPortfolioModel saveUserPortfolio(UserPortfolioModel userPortfolioModel) {
@@ -77,15 +77,12 @@ public class MongoServiceImpl implements MongoService {
     @Override
     public UserPortfolioModel getUserPortfolio(Long userId) {
         UserPortfolioModel model;
-        model = mongoRepository.findById(userId).orElseThrow(() -> {
-            log.error(LOG_TEMPLATE, PORTFOLIO_NOT_FOUND, userId);
-            return new ResourceNotFoundException(PORTFOLIO_NOT_FOUND, userId);
-        });
+        model = mongoRepository.findByUserId(userId);
         return model;
     }
 
     @Override
-    public List<Account> getAccountsByFiType(Long userId, String fiType) {
+    public List<AccountData> getAccountsByFiType(Long userId, String fiType) {
         if (portfolioExists(userId)) {
             UserPortfolioModel model = getUserPortfolio(userId);
             return getAccountsByFiType(model, fiType);
@@ -100,7 +97,7 @@ public class MongoServiceImpl implements MongoService {
         if (portfolioExists(userId)) {
             UserPortfolioModel model = getUserPortfolio(userId);
             switch (fiType) {
-                case "equities" -> {
+                case "EQUITIES" -> {
                     return model.getEquities().getConsentId();
                 }
                 default -> throw new MoneyowlApplicationException("Invalid fiType");
@@ -116,7 +113,7 @@ public class MongoServiceImpl implements MongoService {
         if (portfolioExists(userId)) {
             UserPortfolioModel model = getUserPortfolio(userId);
             switch (fiType) {
-                case "equities" -> {
+                case "EQUITIES" -> {
                     return model.getEquities().getId();
                 }
                 default -> throw new MoneyowlApplicationException("Invalid fiType");
@@ -129,8 +126,8 @@ public class MongoServiceImpl implements MongoService {
 
     @Override
     public AssetAccount getAssetAccountByFiType(String fiType, UserPortfolioModel userPortfolioModel) {
-        switch (fiType.toLowerCase()) {
-            case "equities":
+        switch (fiType.toUpperCase()) {
+            case "EQUITIES":
                 return userPortfolioModel.getEquities();
 
             default:
@@ -150,7 +147,7 @@ public class MongoServiceImpl implements MongoService {
         if (portfolioExists(userId)) {
             UserPortfolioModel model = getUserPortfolio(userId);
             switch (fiType) {
-                case "equities" -> {
+                case "EQUITIES" -> {
                     return model.getEquities().getDataRange();
                 }
                 default -> throw new MoneyowlApplicationException("Invalid fiType");
@@ -162,12 +159,12 @@ public class MongoServiceImpl implements MongoService {
     }
 
     private Boolean portfolioExists(Long userId) {
-        return mongoRepository.existsById(userId);
+        return mongoRepository.existsByUserId(userId);
     }
 
     private void createAndSaveConsentIdByFiType(String fiType, String expiryDate, UserPortfolioModel model, String consentId) {
-        switch (fiType.toLowerCase()) {
-            case "equities" -> {
+        switch (fiType.toUpperCase()) {
+            case "EQUITIES" -> {
                 AssetAccount assetAccount = new AssetAccount();
                 assetAccount.setConsentId(consentId);
                 if (expiryDate != null) {
@@ -182,8 +179,8 @@ public class MongoServiceImpl implements MongoService {
     }
 
     private void createAndSaveIdByFiType(String fiType, UserPortfolioModel model, String Id) {
-        switch (fiType.toLowerCase()) {
-            case "equities" -> {
+        switch (fiType.toUpperCase()) {
+            case "EQUITIES" -> {
                 AssetAccount assetAccount = new AssetAccount();
                 assetAccount.setId(Id);
                 model.setEquities(assetAccount);
@@ -195,8 +192,8 @@ public class MongoServiceImpl implements MongoService {
     }
 
     private void createAndSaveDataRangeByFiType(String fiType, UserPortfolioModel model, DataRange range) {
-        switch (fiType.toLowerCase()) {
-            case "equities" -> {
+        switch (fiType.toUpperCase()) {
+            case "EQUITIES" -> {
                 AssetAccount assetAccount = new AssetAccount();
                 assetAccount.setDataRange(range);
                 model.setEquities(assetAccount);
@@ -207,9 +204,9 @@ public class MongoServiceImpl implements MongoService {
         saveUserPortfolio(model);
     }
 
-    public List<Account> getAccountsByFiType(UserPortfolioModel model, String fiType) {
+    public List<AccountData> getAccountsByFiType(UserPortfolioModel model, String fiType) {
         switch (fiType) {
-            case "equities" -> {
+            case "EQUITIES" -> {
                 return model.getEquities().getAsset();
             }
             default -> throw new MoneyowlApplicationException("Invalid fiType");
