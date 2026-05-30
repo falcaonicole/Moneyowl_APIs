@@ -15,7 +15,6 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -99,6 +98,7 @@ public class SetuAAServiceImpl implements SetuAAService {
     @Override
     public String fetchFIData(Long userId, String fiType) {
         try {
+            
             String token = String.format("Bearer %s", this.fetchAuthToken().getAccessToken());
             String Id = mongoService.getIdByFiType(userId, fiType);
             SetuFIDataResponse fiData = setuFeignClient.getFIData(token, productInstanceId, Id);
@@ -143,16 +143,18 @@ public class SetuAAServiceImpl implements SetuAAService {
 
     public void saveFIData(SetuFIDataResponse fiData, Long userId, String fiType) {
         UserPortfolioModel portfolioModel = mongoService.getUserPortfolio(userId);
+        List<AccountData> accountsData = fiData.getFips()
+                .stream()
+                .filter(fip -> fip.getAccounts() != null)
+                .flatMap(fip -> fip.getAccounts().stream())
+                .toList();
+
         switch (fiType.toLowerCase()) {
-            case "equities" -> {
-                List<AccountData> accountsData = fiData.getFips()
-                        .stream()
-                        .filter(fip -> fip.getAccounts() != null)
-                        .flatMap(fip -> fip.getAccounts().stream())
-                        .collect(Collectors.toList());
-                portfolioModel.getEquities().setAsset(accountsData);
-                mongoService.saveUserPortfolio(portfolioModel);
-            }
+            case "equities" -> portfolioModel.getEquities().setAsset(accountsData);
+            case "mutual_funds" -> portfolioModel.getMutualFunds().setAsset(accountsData);
+            case "deposit" -> portfolioModel.getDeposits().setAsset(accountsData);
+            case "nps" -> portfolioModel.getNps().setAsset(accountsData);
         }
+        mongoService.saveUserPortfolio(portfolioModel);
     }
 }

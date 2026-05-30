@@ -8,12 +8,28 @@ spring:
   main:
     debug: false
 
+  #OpenFeign Configuration
+  cloud:
+    openfeign:
+      httpclient:
+        hc5:
+          enabled: true
+      client:
+        config:
+          setuFeignClient:
+            loggerLevel: FULL
+
+
   #DB Url Config
   datasource:
     driver-class-name: org.postgresql.Driver
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
+
+  data:
+    mongodb:
+      uri: mongodb://${HOST}:${PORT}/${DB_NAME}
 
   #Groq AI LLM Config
   ai:
@@ -77,3 +93,18 @@ twilio:
 otp:
   expiry-minutes: ${EXP_IN_MIN}
   max-attempts: ${MAX_ATTEMPTS}
+
+setu-aa:
+  base:
+    url: "https://fiu-sandbox.setu.co/v2"
+
+  auth:
+    url: "https://orgservice-prod.setu.co/v1/users/login"
+
+  client: "${CLIENT_NAME}"
+  clientID: "${CLIENT_ID}"
+  grant_type: "client_credentials"
+  secret: "${SECRET}"
+  x-product-instance-id: "${PRODUCT_INSTANCE_ID}"
+
+kind: Application

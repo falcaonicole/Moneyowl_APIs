@@ -11,6 +11,9 @@ public class UserPortfolioModel {
     private String id;
     private Long userId;
     private AssetAccount equities;
+    private AssetAccount mutualFunds;
+    private AssetAccount deposits;
+    private AssetAccount nps;
 
     /** For Dynamic Fi Type
      * private Map<String, AssetAccount> assets;

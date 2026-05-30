@@ -1187,8 +1187,9 @@ components:
         propertyName: type
         mapping:
           equities: '#/components/schemas/equityAccount'
-          #deposit: '#/components/schemas/depositAccount'
-          #mutual_funds: '#/components/schemas/mutualFundsAccount'
+          deposit: '#/components/schemas/depositAccount'
+          mutual_funds: '#/components/schemas/mutualFundsAccount'
+          #nps: '#/components/schemas/nps'
       required:
         - type
       properties:
@@ -1216,9 +1217,9 @@ components:
       type: object
       properties:
         holders:
-          $ref: '#/components/schemas/equityHolders'
+          $ref: '#/components/schemas/holders'
 
-    equityHolders:
+    holders:
       type: object
       properties:
         type:
@@ -1227,9 +1228,9 @@ components:
         holder:
           type: array
           items:
-            $ref: '#/components/schemas/equityHolderDetails'
+            $ref: '#/components/schemas/holderDetails'
 
-    equityHolderDetails:
+    holderDetails:
       type: object
       properties:
         address:
@@ -1322,6 +1323,321 @@ components:
         units:
           type: string
           example: "258"
+
+    depositAccount:
+      allOf:
+        - $ref: '#/components/schemas/account'
+        - type: object
+          properties:
+            version:
+              type: string
+              example: "1.1"
+            profile:
+              $ref: '#/components/schemas/depositProfile'
+            summary:
+              $ref: '#/components/schemas/depositSummary'
+    mutualFundsAccount:
+      allOf:
+        - $ref: '#/components/schemas/account'
+        - type: object
+          properties:
+            version:
+              type: string
+              example: "1.1"
+            profile:
+              $ref: '#/components/schemas/mutualFundsProfile'
+            summary:
+              $ref: '#/components/schemas/mutualFundsSummary'
+
+    depositProfile:
+      type: object
+      properties:
+        holders:
+          $ref: '#/components/schemas/holders'
+
+    depositSummary:
+      type: object
+      properties:
+        balanceDateTime:
+          type: string
+          format: date-time
+          example: "2026-01-31T05:23:32+00:00"
+
+        branch:
+          type: string
+          example: "Jayanagar 7th Block"
+
+        currency:
+          type: string
+          example: "INR"
+
+        currentBalance:
+          type: string
+          example: "283197.65"
+
+        currentODLimit:
+          type: string
+          example: "107596.82"
+
+        drawingLimit:
+          type: string
+          example: "474300.21"
+
+        facility:
+          type: string
+          example: "OD"
+
+        ifscCode:
+          type: string
+          example: "AVHR0006055"
+
+        micrCode:
+          type: string
+          example: "633365742"
+
+        openingDate:
+          type: string
+          format: date-time
+          example: "2025-11-08T05:23:32+00:00"
+
+        pending:
+          type: object
+          $ref: '#/components/schemas/pendingTransaction'
+
+        status:
+          type: string
+          example: "ACTIVE"
+
+        type:
+          type: string
+          example: "SAVINGS"
+
+    pendingTransaction:
+      type: object
+      properties:
+        amount:
+          type: string
+          example: "203167.96"
+        transactionType:
+          type: string
+          example: "DEBIT"
+
+    mutualFundsProfile:
+      type: object
+      properties:
+        holders:
+          $ref: '#/components/schemas/holders'
+
+    mutualFundsSummary:
+      type: object
+      properties:
+        costValue:
+          type: string
+          example: "425.84"
+        currentValue:
+          type: string
+          example: "113045.28"
+        investment:
+          $ref: '#/components/schemas/mutualFundsInvestment'
+
+    mutualFundsInvestment:
+      type: object
+      properties:
+        holdings:
+          $ref: '#/components/schemas/mutualFundsHoldingsList'
+
+    mutualFundsHoldingsList:
+      type: object
+      properties:
+        holding:
+          type: array
+          items:
+            $ref: '#/components/schemas/mutualFundsHoldings'
+
+    mutualFundsHoldings:
+      type: object
+      properties:
+        amc:
+          type: string
+          example: "Arya, Tripathi and Singh"
+
+        registrar:
+          type: string
+          example: "CAMS"
+
+        schemeCode:
+          type: string
+          example: "SLPG2104823505"
+
+        schemeOption:
+          type: string
+          example: "REINVEST"
+
+        schemeTypes:
+          type: string
+          example: "HYBRID_SCHEMES"
+
+        schemeCategory:
+          type: string
+          example: "FOCUSED_FUND"
+
+        isin:
+          type: string
+          example: "GB79KXYG4927"
+
+        isinDescription:
+          type: string
+          example: "Raj and Sons"
+
+        ucc:
+          type: string
+          example: "XPDP08591791678564"
+
+        amfiCode:
+          type: string
+          example: "NLRF26030352049311"
+
+        folioNo:
+          type: string
+          example: "4650957809904"
+
+        fatcaStatus:
+          type: string
+          example: "No"
+
+        closingUnits:
+          type: string
+          example: "1"
+
+        lienUnits:
+          type: string
+          example: "9"
+
+        nav:
+          type: string
+          example: "275.29"
+
+        navDate:
+          type: string
+          format: date
+          example: "2017-01-22"
+
+        lockinUnits:
+          type: string
+          example: "3"
+    
+    
+    ################## PORTFOLIO SCHEMAS #####################
+
+    homeDashBoardResponse:
+      type: object
+      description: Return's The Asset Type of User and their Total Valuations for Home Dashboard Page
+      properties:
+        assets:
+          type: array
+          items:
+            $ref: '#/components/schemas/assetValuations'
+
+    assetValuations:
+      type: object
+      description: Asset Type of User and their Total Valuations
+      properties:
+        fiType:
+          type: string
+        currentValue:
+          type: number
+        investedValue:
+          type: number
+
+    equitiesDashBoardResponse:
+      type: object
+      description: Data for Equities Detailed Dashboard
+      properties:
+        totalValue:
+          type: number
+        noOfStocks:
+          type: int
+        noOfBrokers:
+          type: int
+        holdings:
+          type: array
+          items:
+            $ref: '#/components/schemas/holding'
+
+    holding:
+      type: object
+      description: Individual Holding for any Equity
+      properties:
+        issuerName:
+          type: string
+        units:
+          type: string
+        rate:
+          type: string
+        lastTradedPrice:
+          type: string
+        isin:
+          type: string
+        desc:
+          type: string
+        totalAmountInvested:
+          type: number
+
+    mutualFundsDashBoardResponse:
+      type: object
+      description: Data for Mutual Funds Detailed Dashboard
+      properties:
+        totalCurrentValue:
+          type: number
+          description: Total current value of all mutual funds
+        totalInvestedValue:
+          type: number
+          description: Total cost/invested value of all mutual funds
+        noOfFunds:
+          type: integer
+          description: Total count of unique mutual fund schemes
+        noOfFolios:
+          type: integer
+          description: Total count of unique folios (equivalent to noOfBrokers in stocks)
+        holdings:
+          type: array
+          items:
+            $ref: '#/components/schemas/mfHolding'
+
+    mfHolding:
+      type: object
+      description: Individual Holding for a Mutual Fund
+      properties:
+        schemeName:
+          type: string
+          description: Name of the mutual fund scheme
+        amc:
+          type: string
+          description: Asset Management Company (e.g., SBI Mutual Fund)
+        folioNo:
+          type: string
+          description: Folio number of the investment
+        category:
+          type: string
+          description: Category of the fund (e.g., GILT_FUND, EQUITY, HYBRID)
+        units:
+          type: string
+          description: Total closing units held
+        nav:
+          type: string
+          description: Net Asset Value per unit
+        navDate:
+          type: string
+          format: date-time
+          description: The date for which the NAV is applicable
+        isin:
+          type: string
+          description: ISIN of the mutual fund
+
+
+
+
+
 
 
 
