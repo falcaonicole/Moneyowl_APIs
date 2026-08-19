@@ -5,7 +5,7 @@
 //import com.finance.moneyowl.generatedmodels.AccountData;
 //import com.finance.moneyowl.generatedmodels.DataRange;
 //import com.finance.moneyowl.model.AssetAccount;
-//import com.finance.moneyowl.model.UserPortfolioModel;
+//import com.finance.moneyowl.model.UserPortfolioSetuResponseModel;
 //import com.finance.moneyowl.repository.MongoDBRepository;
 //import com.finance.moneyowl.service.interfaces.MongoService;
 //import lombok.extern.slf4j.Slf4j;
@@ -25,14 +25,14 @@
 //    private MongoDBRepository mongoRepository;
 //
 //    @Override
-//    public UserPortfolioModel saveUserPortfolio(UserPortfolioModel userPortfolioModel) {
+//    public UserPortfolioSetuResponseModel saveUserPortfolio(UserPortfolioSetuResponseModel userPortfolioModel) {
 //        return mongoRepository.save(userPortfolioModel);
 //    }
 //
 //    @Override
 //    public void saveConsentIdAndExpiryByFiType(Long userId, String consentId, String expiryDate, String fiType) {
 //        if (portfolioExists(userId)) {
-//            UserPortfolioModel userPortfolio = getUserPortfolio(userId);
+//            UserPortfolioSetuResponseModel userPortfolio = getUserPortfolio(userId);
 //            AssetAccount assetAccount = getAssetAccountByFiType(fiType, userPortfolio);
 //            assetAccount.setConsentId(consentId);
 //            if (expiryDate != null) {
@@ -40,7 +40,7 @@
 //            }
 //            saveUserPortfolio(userPortfolio);
 //        } else {
-//            UserPortfolioModel model = new UserPortfolioModel();
+//            UserPortfolioSetuResponseModel model = new UserPortfolioSetuResponseModel();
 //            model.setUserId(userId);
 //            createAndSaveConsentIdByFiType(fiType, expiryDate, model, consentId);
 //        }
@@ -49,12 +49,12 @@
 //    @Override
 //    public void saveIdByFiType(Long userId, String Id, String fiType) {
 //        if (portfolioExists(userId)) {
-//            UserPortfolioModel userPortfolio = getUserPortfolio(userId);
+//            UserPortfolioSetuResponseModel userPortfolio = getUserPortfolio(userId);
 //            AssetAccount assetAccount = getAssetAccountByFiType(fiType, userPortfolio);
 //            assetAccount.setId(Id);
 //            saveUserPortfolio(userPortfolio);
 //        } else {
-//            UserPortfolioModel model = new UserPortfolioModel();
+//            UserPortfolioSetuResponseModel model = new UserPortfolioSetuResponseModel();
 //            model.setUserId(userId);
 //            createAndSaveIdByFiType(fiType, model, Id);
 //        }
@@ -63,20 +63,20 @@
 //    @Override
 //    public void saveDataRangeByFiType(Long userId, DataRange range, String fiType) {
 //        if (portfolioExists(userId)) {
-//            UserPortfolioModel userPortfolio = getUserPortfolio(userId);
+//            UserPortfolioSetuResponseModel userPortfolio = getUserPortfolio(userId);
 //            AssetAccount assetAccount = getAssetAccountByFiType(fiType, userPortfolio);
 //            assetAccount.setDataRange(range);
 //            saveUserPortfolio(userPortfolio);
 //        } else {
-//            UserPortfolioModel model = new UserPortfolioModel();
+//            UserPortfolioSetuResponseModel model = new UserPortfolioSetuResponseModel();
 //            model.setUserId(userId);
 //            createAndSaveDataRangeByFiType(fiType, model, range);
 //        }
 //    }
 //
 //    @Override
-//    public UserPortfolioModel getUserPortfolio(Long userId) {
-//        UserPortfolioModel model;
+//    public UserPortfolioSetuResponseModel getUserPortfolio(Long userId) {
+//        UserPortfolioSetuResponseModel model;
 //        model = mongoRepository.findByUserId(userId);
 //        return model;
 //    }
@@ -84,7 +84,7 @@
 //    @Override
 //    public List<AccountData> getAccountsByFiType(Long userId, String fiType) {
 //        if (portfolioExists(userId)) {
-//            UserPortfolioModel model = getUserPortfolio(userId);
+//            UserPortfolioSetuResponseModel model = getUserPortfolio(userId);
 //            return getAccountsByFiType(model, fiType);
 //        } else {
 //            log.error(LOG_TEMPLATE, PORTFOLIO_NOT_FOUND, userId);
@@ -95,7 +95,7 @@
 //    @Override
 //    public String getConsentIdByFiType(Long userId, String fiType) {
 //        if (portfolioExists(userId)) {
-//            UserPortfolioModel model = getUserPortfolio(userId);
+//            UserPortfolioSetuResponseModel model = getUserPortfolio(userId);
 //            switch (fiType) {
 //                case "EQUITIES":
 //                    return model.getEquities().getConsentId();
@@ -117,7 +117,7 @@
 //    @Override
 //    public String getIdByFiType(Long userId, String fiType) {
 //        if (portfolioExists(userId)) {
-//            UserPortfolioModel model = getUserPortfolio(userId);
+//            UserPortfolioSetuResponseModel model = getUserPortfolio(userId);
 //            switch (fiType) {
 //                case "EQUITIES" -> {
 //                    return model.getEquities().getId();
@@ -140,7 +140,7 @@
 //    }
 //
 //    @Override
-//    public AssetAccount getAssetAccountByFiType(String fiType, UserPortfolioModel userPortfolioModel) {
+//    public AssetAccount getAssetAccountByFiType(String fiType, UserPortfolioSetuResponseModel userPortfolioModel) {
 //        switch (fiType.toUpperCase()) {
 //            case "EQUITIES":
 //                return userPortfolioModel.getEquities();
@@ -156,7 +156,7 @@
 //        }
 //
 //        /** For Dynamic FiType
-//         * UserPortfolioModel portfolio =
+//         * UserPortfolioSetuResponseModel portfolio =
 //         *             userPortfolioRepository.findById(userId)
 //         *                     .orElseThrow(() -> new RuntimeException("Not found"));
 //         *
@@ -166,7 +166,7 @@
 //    @Override
 //    public DataRange getDataRangeByFiType(Long userId, String fiType) {
 //        if (portfolioExists(userId)) {
-//            UserPortfolioModel model = getUserPortfolio(userId);
+//            UserPortfolioSetuResponseModel model = getUserPortfolio(userId);
 //            switch (fiType) {
 //                case "EQUITIES":
 //                    return model.getEquities().getDataRange();
@@ -190,7 +190,7 @@
 //        return mongoRepository.existsByUserId(userId);
 //    }
 //
-//    private void createAndSaveConsentIdByFiType(String fiType, String expiryDate, UserPortfolioModel model, String consentId) {
+//    private void createAndSaveConsentIdByFiType(String fiType, String expiryDate, UserPortfolioSetuResponseModel model, String consentId) {
 //        AssetAccount assetAccount = new AssetAccount();
 //        assetAccount.setConsentId(consentId);
 //        if (expiryDate != null) {
@@ -210,7 +210,7 @@
 //        saveUserPortfolio(model);
 //    }
 //
-//    private void createAndSaveIdByFiType(String fiType, UserPortfolioModel model, String Id) {
+//    private void createAndSaveIdByFiType(String fiType, UserPortfolioSetuResponseModel model, String Id) {
 //
 //        AssetAccount assetAccount = new AssetAccount();
 //        assetAccount.setId(Id);
@@ -228,7 +228,7 @@
 //        saveUserPortfolio(model);
 //    }
 //
-//    private void createAndSaveDataRangeByFiType(String fiType, UserPortfolioModel model, DataRange range) {
+//    private void createAndSaveDataRangeByFiType(String fiType, UserPortfolioSetuResponseModel model, DataRange range) {
 //
 //        AssetAccount assetAccount = new AssetAccount();
 //        assetAccount.setDataRange(range);
@@ -246,7 +246,7 @@
 //        saveUserPortfolio(model);
 //    }
 //
-//    public List<AccountData> getAccountsByFiType(UserPortfolioModel model, String fiType) {
+//    public List<AccountData> getAccountsByFiType(UserPortfolioSetuResponseModel model, String fiType) {
 //        switch (fiType) {
 //            case "EQUITIES":
 //                return model.getEquities().getAsset();
@@ -263,12 +263,11 @@
 //}
 package com.finance.moneyowl.service.impl;
 
-import com.finance.moneyowl.exceptions.MoneyowlApplicationException;
 import com.finance.moneyowl.exceptions.ResourceNotFoundException;
 import com.finance.moneyowl.generatedmodels.AccountData;
 import com.finance.moneyowl.generatedmodels.DataRange;
 import com.finance.moneyowl.model.AssetAccount;
-import com.finance.moneyowl.model.UserPortfolioModel;
+import com.finance.moneyowl.model.UserPortfolioSetuResponseModel;
 import com.finance.moneyowl.repository.MongoDBRepository;
 import com.finance.moneyowl.service.interfaces.MongoService;
 import lombok.RequiredArgsConstructor;
@@ -277,7 +276,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.finance.moneyowl.utils.ErrorMessageConstants.LOG_TEMPLATE;
 import static com.finance.moneyowl.utils.ErrorMessageConstants.PORTFOLIO_NOT_FOUND;
@@ -290,43 +291,53 @@ public class MongoServiceImpl implements MongoService {
     private final MongoDBRepository mongoRepository;
 
     @Override
-    public UserPortfolioModel saveUserPortfolio(UserPortfolioModel userPortfolioModel) {
-        return mongoRepository.save(userPortfolioModel);
+    public UserPortfolioSetuResponseModel saveUserPortfolio(UserPortfolioSetuResponseModel userPortfolioSetuResponseModel) {
+        return mongoRepository.save(userPortfolioSetuResponseModel);
     }
 
     @Override
     public void saveConsentIdAndExpiryByFiType(Long userId, String consentId, String expiryDate, String fiType) {
-        UserPortfolioModel model = getOrCreatePortfolio(userId);
-        AssetAccount assetAccount = getOrCreateAssetAccount(model, fiType);
-
-        assetAccount.setConsentId(consentId);
-        if (StringUtils.hasText(expiryDate)) {
-            assetAccount.setConsentExpiry(expiryDate);
+        UserPortfolioSetuResponseModel model = getOrCreatePortfolio(userId);
+        if (model.getAssets() == null) {
+            model.setAssets(new HashMap<>());
         }
+        AssetAccount account = model.getAssets().computeIfAbsent(fiType.toLowerCase(), k -> new AssetAccount());
 
+        account.setConsentId(consentId);
+        if (StringUtils.hasText(expiryDate)) {
+            account.setConsentExpiry(expiryDate);
+        }
         saveUserPortfolio(model);
     }
 
     @Override
     public void saveIdByFiType(Long userId, String id, String fiType) {
-        UserPortfolioModel model = getOrCreatePortfolio(userId);
-        AssetAccount assetAccount = getOrCreateAssetAccount(model, fiType);
+        UserPortfolioSetuResponseModel model = getOrCreatePortfolio(userId);
+        if (model.getAssets() == null) {
+            model.setAssets(new HashMap<>());
+        }
+        model.getAssets()
+                .computeIfAbsent(fiType.toLowerCase(), k -> new AssetAccount())
+                .setId(id);
 
-        assetAccount.setId(id);
         saveUserPortfolio(model);
     }
 
     @Override
     public void saveDataRangeByFiType(Long userId, DataRange range, String fiType) {
-        UserPortfolioModel model = getOrCreatePortfolio(userId);
-        AssetAccount assetAccount = getOrCreateAssetAccount(model, fiType);
+        UserPortfolioSetuResponseModel model = getOrCreatePortfolio(userId);
 
-        assetAccount.setDataRange(range);
+        if (model.getAssets() == null) {
+            model.setAssets(new HashMap<>());
+        }
+        model.getAssets()
+                .computeIfAbsent(fiType.toLowerCase(), k -> new AssetAccount())
+                .setDataRange(range);
         saveUserPortfolio(model);
     }
 
     @Override
-    public UserPortfolioModel getUserPortfolio(Long userId) {
+    public UserPortfolioSetuResponseModel getUserPortfolio(Long userId) {
         return mongoRepository.findByUserId(userId);
     }
 
@@ -352,62 +363,46 @@ public class MongoServiceImpl implements MongoService {
     }
 
     @Override
-    public AssetAccount getAssetAccountByFiType(String fiType, UserPortfolioModel model) {
+    public AssetAccount getAssetAccountByFiType(String fiType, UserPortfolioSetuResponseModel model) {
         return extractAssetAccount(model, fiType);
     }
 
-    // ===================================================================================
-    // PRIVATE HELPER METHODS (DRY Principle & Safety)
-    // ===================================================================================
-
-    private UserPortfolioModel getOrCreatePortfolio(Long userId) {
-        UserPortfolioModel model = mongoRepository.findByUserId(userId);
+    private UserPortfolioSetuResponseModel getOrCreatePortfolio(Long userId) {
+        UserPortfolioSetuResponseModel model = mongoRepository.findByUserId(userId);
         if (model == null) {
-            model = new UserPortfolioModel();
+            model = new UserPortfolioSetuResponseModel();
             model.setUserId(userId);
         }
         return model;
     }
 
-    private AssetAccount getOrCreateAssetAccount(UserPortfolioModel model, String fiType) {
-        AssetAccount account = extractAssetAccount(model, fiType);
-        if (account == null) {
-            account = new AssetAccount();
-            setAssetAccount(model, fiType, account);
-        }
-        return account;
-    }
-
     private AssetAccount getExistingAssetAccountSafe(Long userId, String fiType) {
-        UserPortfolioModel model = mongoRepository.findByUserId(userId);
+        if (!StringUtils.hasText(fiType)) {
+            return new AssetAccount();
+        }
+        UserPortfolioSetuResponseModel model = mongoRepository.findByUserId(userId);
         if (model == null) {
             log.error(LOG_TEMPLATE, PORTFOLIO_NOT_FOUND, userId);
             throw new ResourceNotFoundException(PORTFOLIO_NOT_FOUND, userId);
         }
-        AssetAccount account = extractAssetAccount(model, fiType);
-        // Return an empty AssetAccount instead of null to prevent downstream NPEs
-        return account != null ? account : new AssetAccount();
-    }
-
-    private AssetAccount extractAssetAccount(UserPortfolioModel model, String fiType) {
-        if (model == null || !StringUtils.hasText(fiType)) return null;
-
-        return switch (fiType.toUpperCase()) {
-            case "EQUITIES" -> model.getEquities();
-            case "DEPOSIT" -> model.getDeposits();
-            case "MUTUAL_FUNDS" -> model.getMutualFunds();
-            case "NPS" -> model.getNps();
-            default -> throw new MoneyowlApplicationException("Invalid fiType: " + fiType);
-        };
-    }
-
-    private void setAssetAccount(UserPortfolioModel model, String fiType, AssetAccount account) {
-        switch (fiType.toUpperCase()) {
-            case "EQUITIES" -> model.setEquities(account);
-            case "DEPOSIT" -> model.setDeposits(account);
-            case "MUTUAL_FUNDS" -> model.setMutualFunds(account);
-            case "NPS" -> model.setNps(account);
-            default -> throw new MoneyowlApplicationException("Invalid fiType: " + fiType);
+        Map<String, AssetAccount> assets = model.getAssets();
+        if (model.getAssets() == null) {
+            return new AssetAccount();
         }
+        return assets.getOrDefault(fiType.toLowerCase(), new AssetAccount());
+    }
+
+    private AssetAccount extractAssetAccount(UserPortfolioSetuResponseModel model, String fiType) {
+        if (!StringUtils.hasText(fiType)) return null;
+        return model.getAssets().get(fiType.toLowerCase());
+    }
+
+    private void setAssetAccount(UserPortfolioSetuResponseModel portfolioModel, String fiType, AssetAccount account) {
+        if (!StringUtils.hasText(fiType) || portfolioModel == null) return;
+
+        if (portfolioModel.getAssets() == null) {
+            portfolioModel.setAssets(new HashMap<>());
+        }
+        portfolioModel.getAssets().put(fiType.toLowerCase(), account);
     }
 }

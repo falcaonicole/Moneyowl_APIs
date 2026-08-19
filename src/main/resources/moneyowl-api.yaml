@@ -415,12 +415,6 @@ paths:
           $ref: '#/components/responses/503'
         '504':
           $ref: '#/components/responses/504'
-  ############## SurvivalMode APIs #############################
-
-  ######################## LifeGoals API'S ##########################
-
-
-
 
 components:
   ####################### HEADER ##############################
@@ -794,7 +788,6 @@ components:
           example: "PENDING"
 
         detail:
-          type: object
           description: Detailed parameters of the requested consent
           $ref: '#/components/schemas/consentDetail'
 
@@ -862,7 +855,6 @@ components:
           example: "PENDING"
 
         detail:
-          type: object
           description: Detailed parameters of the requested consent
           $ref: '#/components/schemas/consentDetail'
 
@@ -1004,7 +996,6 @@ components:
           example: "24"
 
     consentDetail:
-      type: object
       properties:
         consentStart:
           type: string
@@ -1533,14 +1524,29 @@ components:
       type: object
       description: Return's The Asset Type of User and their Total Valuations for Home Dashboard Page
       properties:
+        currentPortfolioValue:
+          type: number
+        totalInvestedValue:
+          type: number
         assets:
           type: array
           items:
-            $ref: '#/components/schemas/assetValuations'
+            $ref: '#/components/schemas/asset'
 
-    assetValuations:
+    equitiesDashBoardResponse:
       type: object
-      description: Asset Type of User and their Total Valuations
+      description: Return's Equity Dashboard Response
+      properties:
+        portfolio:
+          $ref: '#/components/schemas/portfolio'
+        userHoldingList:
+          type: array
+          items:
+            $ref: '#/components/schemas/userHolding'
+
+    asset:
+      type: object
+      description: Asset Type of User and their Valuations
       properties:
         fiType:
           type: string
@@ -1548,93 +1554,95 @@ components:
           type: number
         investedValue:
           type: number
+        lastUpdatedOn:
+          type: string
+          format: date
+        performance:
+          $ref: '#/components/schemas/performance'
 
-    equitiesDashBoardResponse:
+    userHolding:
       type: object
-      description: Data for Equities Detailed Dashboard
       properties:
-        totalValue:
-          type: number
-        noOfStocks:
-          type: int
-        noOfBrokers:
-          type: int
-        holdings:
-          type: array
-          items:
-            $ref: '#/components/schemas/holding'
-
-    holding:
-      type: object
-      description: Individual Holding for any Equity
-      properties:
-        issuerName:
+        id:
           type: string
-        units:
-          type: string
-        rate:
-          type: string
-        lastTradedPrice:
-          type: string
-        isin:
-          type: string
-        desc:
-          type: string
-        totalAmountInvested:
-          type: number
-
-    mutualFundsDashBoardResponse:
-      type: object
-      description: Data for Mutual Funds Detailed Dashboard
-      properties:
-        totalCurrentValue:
-          type: number
-          description: Total current value of all mutual funds
-        totalInvestedValue:
-          type: number
-          description: Total cost/invested value of all mutual funds
-        noOfFunds:
+        userId:
           type: integer
-          description: Total count of unique mutual fund schemes
-        noOfFolios:
-          type: integer
-          description: Total count of unique folios (equivalent to noOfBrokers in stocks)
-        holdings:
-          type: array
-          items:
-            $ref: '#/components/schemas/mfHolding'
-
-    mfHolding:
-      type: object
-      description: Individual Holding for a Mutual Fund
-      properties:
-        schemeName:
+        assetType:
           type: string
-          description: Name of the mutual fund scheme
-        amc:
-          type: string
-          description: Asset Management Company (e.g., SBI Mutual Fund)
-        folioNo:
-          type: string
-          description: Folio number of the investment
         category:
           type: string
-          description: Category of the fund (e.g., GILT_FUND, EQUITY, HYBRID)
-        units:
-          type: string
-          description: Total closing units held
-        nav:
-          type: string
-          description: Net Asset Value per unit
-        navDate:
-          type: string
-          format: date-time
-          description: The date for which the NAV is applicable
         isin:
           type: string
-          description: ISIN of the mutual fund
+        externalHoldingId:
+          type: string
+        averageBuyPrice:
+          type: number
+        units:
+          type: number
+        totalInvestedValue:
+          type: number
+        currentValue:
+          type: number
+        performance:
+          $ref: '#/components/schemas/performance'
+        priceSource:
+          type: string
+        priceAsOfDate:
+          type: string
+          format: date
+        isStale:
+          type: boolean
+          default: false
+        isActive:
+          type: boolean
+          default: true
+        lastUpdatedOn:
+          type: string
+          format: date
+        profile:
+          type: object
+        holding:
+          type: object
 
+    portfolio:
+      type: object
+      description: Overall analytics and valuation information for a user's portfolio.
+      properties:
+        id:
+          type: int
+          description: Unique identifier of the portfolio.
+        userId:
+          type: integer
+          description: Unique identifier of the user.
+        assetType:
+          type: string
+          description: Type of asset represented by the portfolio.
+        consentExpiry:
+          type: string
+          description: Consent expiry date/time.
+        dataRange:
+          $ref: '#/components/schemas/dataRange'
+        performance:
+          $ref: '#/components/schemas/performance'
+        lastUpdatedOn:
+          type: string
+          format: date
+          description: Date and time when the portfolio was last updated.
+        currentAssetValue:
+          type: number
+          description: Current market value of the assets.
+        totalInvestedValue:
+          type: number
+          description: Total amount invested in the assets.
 
+    performance:
+      type: object
+      description: Performance of Individual Holding
+      properties:
+        xirr:
+          type: number
+        dayP&L:
+          type: number
 
 
 

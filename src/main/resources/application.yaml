@@ -3,7 +3,7 @@ spring:
     name: MoneyOwl
     security:
       jwt:
-        secret-key: ${JWT_SECRET_KEY}
+        secret-key: ${SECRET_KEY}
         expiration: 3600000 # 30 minutes (30 * 60 * 1000)
   main:
     debug: false
@@ -19,26 +19,31 @@ spring:
           setuFeignClient:
             loggerLevel: FULL
 
+  config:
+    activate:
+      on-profile: local
 
   #DB Url Config
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: jdbc:postgresql://localhost/MONEYOWL
+    # jdbc:postgresql://localhost/${DB_NAME}
+    username: ${USER_NAME}
+    password: ${PASSWORD}
 
   data:
     mongodb:
-      uri: mongodb://${HOST}:${PORT}/${DB_NAME}
+      uri: mongodb://${USERNAME}:${PASSWORD}@localhost:27017/AssetData?authSource=admin
+      database: AssetData
 
   #Groq AI LLM Config
   ai:
     openai:
-      api-key: ${GROQ_API_KEY}
+      api-key: "${GROQ_API_KEY}"
       base-url: https://api.groq.com/openai
       chat:
         options:
-          model: ${GROQ_MODEL_NAME}
+          model: llama-3.3-70b-versatile
           temperature: 0.7
   #JPA Properties
   jpa:
@@ -60,8 +65,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ${SMTP_USERNAME}
-    password: ${SMTP_PASSWORD}
+    username: ${USERNAME_OR_EMAIL}
+    password: "${PASSWORD_OR_PASSKEY}"
     properties:
       mail:
         smtp:
@@ -86,13 +91,13 @@ springdoc:
     operationsSorter: method
 
 twilio:
-  account-sid: ${TWILIO_ACCOUNT_SID}
-  auth-token: ${TWILIO_AUTH_TOKEN}
-  from-number: ${SENDER_MOB_NO}
+  account-sid: "${ACCOUNT_ID}"
+  auth-token: "${AUTH_TOKEN}"
+  from-number: "${DEFAULT_PURCHASED_MOB_NO}"
 
 otp:
-  expiry-minutes: ${EXP_IN_MIN}
-  max-attempts: ${MAX_ATTEMPTS}
+  expiry-minutes: 5
+  max-attempts: 3
 
 setu-aa:
   base:
@@ -101,10 +106,8 @@ setu-aa:
   auth:
     url: "https://orgservice-prod.setu.co/v1/users/login"
 
-  client: "${CLIENT_NAME}"
+  client: "bridge"
   clientID: "${CLIENT_ID}"
   grant_type: "client_credentials"
-  secret: "${SECRET}"
-  x-product-instance-id: "${PRODUCT_INSTANCE_ID}"
-
-kind: Application
+  secret: "${CLIENT_SECRET}"
+  x-product-instance-id: "${X_PRODUCT_INSTANCE_ID}"
