@@ -190,7 +190,96 @@ paths:
         '504':
           $ref: '#/components/responses/504'
 
-  ###################### PORTFOLIO APIs ########################
+  ###################### DASHBOARD APIs ########################
+  '/home/{userId}':
+    get:
+      tags:
+        - Dashboard
+      summary: GET User's Home Dashboard View
+      description: Retrieves User's Home Dashboard View
+      operationId: getHomeDashboard
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: Unique identifier of the user
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successfully retrieved User's Home Dashboard View.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/homeDashBoardResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+
+  '/equities/{userId}':
+    get:
+      tags:
+        - Dashboard
+      summary: GET User's Equity Dashboard View
+      description: Retrieves User's Equity Dashboard View
+      operationId: getEquityDashboard
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: Unique identifier of the user
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successfully retrieved User's Equity Dashboard View.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/equitiesDashBoardResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
 
   ####################### LIABILITY APIs #####################
 
