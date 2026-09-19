@@ -86,7 +86,7 @@ public class SetuAAServiceImpl implements SetuAAService {
             String token = String.format("Bearer %s", this.fetchAuthToken().getAccessToken());
             String id = mongoService.getIdByFiType(userId, fiType);
             SetuFIDataResponse fiData = setuFeignClient.getFIData(token, productInstanceId, id);
-            setuUtils.saveFIData(fiData, userId, fiType);
+            setuUtils.saveFIData(fiData, userId, fiType.toLowerCase());
             return "FI Data Fetched Successfully";
         } catch (Exception e) {
             return "Error Occurred While Fetching FI Data";

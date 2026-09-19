@@ -71,8 +71,7 @@ public class SetuUtils {
             portfolioModel.setAssets(new HashMap<>());
         }
 
-        String fiTypeKey = fiType.toUpperCase();
-        AssetAccount account = portfolioModel.getAssets().computeIfAbsent(fiTypeKey, k -> new AssetAccount());
+        AssetAccount account = portfolioModel.getAssets().computeIfAbsent(fiType, k -> new AssetAccount());
         account.setAsset(accountsData);
 
         mongoService.saveUserPortfolio(portfolioModel);
