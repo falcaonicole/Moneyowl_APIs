@@ -6,6 +6,7 @@ import com.finance.moneyowl.model.UserPortfolio;
 import com.finance.moneyowl.repository.MongoHoldingRepository;
 import com.finance.moneyowl.repository.UserPortfolioMongoRepo;
 import com.finance.moneyowl.service.interfaces.DashboardService;
+import com.finance.moneyowl.service.interfaces.MongoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,7 +17,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 
-import static com.finance.moneyowl.utils.Constants.EQUITIES;
+import static com.finance.moneyowl.utils.Constants.*;
 
 @Service
 @Slf4j
@@ -26,6 +27,7 @@ public class DashboardServiceImpl implements DashboardService {
 
     private final UserPortfolioMongoRepo userPortfolioRepository;
     private final MongoHoldingRepository userHoldingsRepository;
+    private final MongoService mongoService;
 
     @Override
     public HomeDashBoardResponse getHomeDashboard(Long userId) {
@@ -69,6 +71,52 @@ public class DashboardServiceImpl implements DashboardService {
                         );
 
         return EquitiesDashBoardResponse.builder()
+                .portfolio(toUserPortfolioResponse(portfolio))
+                .userHoldingList(
+                        holdings.stream()
+                                .map(this::toUserHoldingResponse)
+                                .toList()
+                )
+                .build();
+    }
+
+    @Override
+    public MutualFundsDashBoardResponse getMutualFundsDashboard(Long userId) {
+        UserPortfolio portfolio = userPortfolioRepository
+                .findByUserIdAndAssetType(userId, MUTUAL_FUNDS)
+                .orElse(null);
+
+        List<UserHoldings> holdings =
+                userHoldingsRepository
+                        .findByUserIdAndAssetTypeAndIsActiveTrue(
+                                userId,
+                                MUTUAL_FUNDS
+                        );
+
+        return MutualFundsDashBoardResponse.builder()
+                .portfolio(toUserPortfolioResponse(portfolio))
+                .userHoldingList(
+                        holdings.stream()
+                                .map(this::toUserHoldingResponse)
+                                .toList()
+                )
+                .build();
+    }
+
+    @Override
+    public DepositsDashBoardResponse getDepositsDashboard(Long userId) {
+        UserPortfolio portfolio = userPortfolioRepository
+                .findByUserIdAndAssetType(userId, DEPOSIT)
+                .orElse(null);
+
+        List<UserHoldings> holdings =
+                userHoldingsRepository
+                        .findByUserIdAndAssetTypeAndIsActiveTrue(
+                                userId,
+                                DEPOSIT
+                        );
+
+        return DepositsDashBoardResponse.builder()
                 .portfolio(toUserPortfolioResponse(portfolio))
                 .userHoldingList(
                         holdings.stream()

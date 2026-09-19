@@ -1,7 +1,9 @@
 package com.finance.moneyowl.restcontroller;
 
+import com.finance.moneyowl.generatedmodels.DepositsDashBoardResponse;
 import com.finance.moneyowl.generatedmodels.EquitiesDashBoardResponse;
 import com.finance.moneyowl.generatedmodels.HomeDashBoardResponse;
+import com.finance.moneyowl.generatedmodels.MutualFundsDashBoardResponse;
 import com.finance.moneyowl.service.interfaces.DashboardService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +32,22 @@ public class DashboardServiceController implements DashboardApi {
         log.info("Start DashboardServiceController :: getEquityDashboard - {}", userId);
         EquitiesDashBoardResponse response = dashboardService.getEquityDashboard(userId);
         log.info("End DashboardServiceController :: getEquityDashboard Response - {}", response);
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public ResponseEntity<MutualFundsDashBoardResponse> getMutualFundsDashboard(@PathVariable("userId") Long userId) {
+        log.info("Start DashboardServiceController :: getMutualFundsDashboard - {}", userId);
+        MutualFundsDashBoardResponse response = dashboardService.getMutualFundsDashboard(userId);
+        log.info("End DashboardServiceController :: getMutualFundsDashboard Response - {}", response);
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public ResponseEntity<DepositsDashBoardResponse> getDepositsDashboard(@PathVariable("userId") Long userId) {
+        log.info("Start DashboardServiceController :: getDepositsDashboard - {}", userId);
+        DepositsDashBoardResponse response = dashboardService.getDepositsDashboard(userId);
+        log.info("End DashboardServiceController :: getDepositsDashboard Response - {}", response);
         return ResponseEntity.ok(response);
     }
 }

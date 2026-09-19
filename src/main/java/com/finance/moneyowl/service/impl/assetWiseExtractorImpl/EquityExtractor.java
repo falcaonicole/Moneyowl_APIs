@@ -15,6 +15,8 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
+import static com.finance.moneyowl.utils.Constants.EQUITIES;
+
 @Component
 public class EquityExtractor implements FiTypeExtractor {
 
@@ -29,7 +31,7 @@ public class EquityExtractor implements FiTypeExtractor {
 
     @Override
     public String getFiType() {
-        return "equities";
+        return EQUITIES;
     }
 
     @Override

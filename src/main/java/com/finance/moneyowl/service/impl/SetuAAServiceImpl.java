@@ -55,6 +55,7 @@ public class SetuAAServiceImpl implements SetuAAService {
         consent.setFiTypes(consentResponse.getDetail().getFiTypes());
 
         mongoService.saveConsentIdAndExpiryByFiType(userId, consentResponse.getId().toString(), consentResponse.getDetail().getConsentExpiry(), fiType);
+        mongoService.saveDataRangeByFiType(userId, consentResponse.getDetail().getDataRange(), fiType);
         log.info("End SetuAAServiceImpl :: createUserConsent");
         return consent;
     }

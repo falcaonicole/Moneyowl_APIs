@@ -281,9 +281,96 @@ paths:
         '504':
           $ref: '#/components/responses/504'
 
-  ####################### LIABILITY APIs #####################
+  '/mutual-funds/{userId}':
+    get:
+      tags:
+        - Dashboard
+      summary: GET User's Mutual Funds Dashboard View
+      description: Retrieves User's Mutual Funds Dashboard View
+      operationId: getMutualFundsDashboard
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: Unique identifier of the user
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successfully retrieved User's Mutual Funds Dashboard View.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/mutualFundsDashBoardResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
 
-  ####################### GrowthRate APIs #####################
+  '/deposits/{userId}':
+    get:
+      tags:
+        - Dashboard
+      summary: GET User's Deposits Dashboard View
+      description: Retrieves User's Deposits Dashboard View
+      operationId: getDepositsDashboard
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: Unique identifier of the user
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successfully retrieved User's Deposits Dashboard View.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/depositsDashBoardResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+
 
   ####################### AUTH APIs ############################
   '/auth/register':
@@ -1632,6 +1719,30 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/userHolding'
+
+    mutualFundsDashBoardResponse:
+      type: object
+      description: Return's Mutual Funds Dashboard Response
+      properties:
+        portfolio:
+          $ref: '#/components/schemas/portfolio'
+        userHoldingList:
+          type: array
+          items:
+            $ref: '#/components/schemas/userHolding'
+
+
+    depositsDashBoardResponse:
+      type: object
+      description: Return's Deposits Dashboard Response
+      properties:
+        portfolio:
+          $ref: '#/components/schemas/portfolio'
+        userHoldingList:
+          type: array
+          items:
+            $ref: '#/components/schemas/userHolding'
+
 
     asset:
       type: object

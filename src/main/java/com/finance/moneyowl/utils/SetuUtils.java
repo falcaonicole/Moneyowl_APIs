@@ -6,36 +6,46 @@ import com.finance.moneyowl.generatedmodels.*;
 import com.finance.moneyowl.model.AssetAccount;
 import com.finance.moneyowl.model.UserPortfolio;
 import com.finance.moneyowl.model.UserPortfolioSetuResponseModel;
-import com.finance.moneyowl.repository.MongoHoldingRepository;
 import com.finance.moneyowl.repository.UserPortfolioMongoRepo;
 import com.finance.moneyowl.service.interfaces.MongoService;
 import com.finance.moneyowl.service.interfaces.UserService;
 import com.finance.moneyowl.service.interfaces.assetWiseExtractor.FiTypeExtractor;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-@Component
+@Service
 @Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class SetuUtils {
 
     private final MongoService mongoService;
     private final FiTypeExtractorRegistry extractorRegistry;
-    private final MongoHoldingRepository mongoHoldingRepository;
     private final UserService userService;
     private final UserPortfolioMongoRepo userPortfolioMongoRepo;
 
+    @Value("${setu-aa.aa.vua-suffix:@onemoney}")
+    private String vuaSuffix;
+
+    @Value("${setu-aa.aa.consent-duration-months:24}")
+    private String consentDurationMonths;
+
+    @Value("${setu-aa.aa.data-range-years:1}")
+    private int dataRangeYears;
+
+    @Transactional
     public void saveFIData(SetuFIDataResponse fiData, Long userId, String fiType) {
-        if (fiData == null || fiData.getFips() == null || fiType == null) {
+        if (fiData == null || fiData.getFips() == null || !StringUtils.hasText(fiType)) {
+            log.warn("Invalid FI Data received for UserId: {}", userId);
             return;
         }
 
@@ -48,83 +58,85 @@ public class SetuUtils {
                 .toList();
 
         if (accountsData.isEmpty()) {
+            log.info("No accounts found in FI Data for UserId: {}, FiType: {}", userId, fiType);
             return;
         }
+
         UserPortfolioSetuResponseModel portfolioModel = mongoService.getUserPortfolio(userId);
         if (portfolioModel == null) {
-            throw new UsernameNotFoundException("User Portfolio Not Found : " + userId);
+            throw new ResourceNotFoundException("Raw User Portfolio State Not Found for User: " + userId);
         }
-        Map<String, AssetAccount> assets = portfolioModel.getAssets();
-        if (assets == null) {
-            log.info("Creating a new HashMap for Portfolio Assets :: {} :: {}", fiType, userId);
-            assets = new HashMap<>();
-            portfolioModel.setAssets(assets);
+
+        if (portfolioModel.getAssets() == null) {
+            portfolioModel.setAssets(new HashMap<>());
         }
-        AssetAccount account = assets.computeIfAbsent(fiType.toLowerCase(), k -> new AssetAccount());
+
+        String fiTypeKey = fiType.toUpperCase();
+        AssetAccount account = portfolioModel.getAssets().computeIfAbsent(fiTypeKey, k -> new AssetAccount());
         account.setAsset(accountsData);
+
         mongoService.saveUserPortfolio(portfolioModel);
-        extractHoldingsAndAssets(fiData, userId, fiType, account);
+
+        extractHoldingsAndAssets(userId, fiType, account, accountsData);
     }
 
-    public void extractHoldingsAndAssets(SetuFIDataResponse fiData, Long userId, String fiType, AssetAccount account) {
-        if (fiData == null || fiData.getFips() == null || fiType == null || account == null) {
-            return;
-        }
+    private void extractHoldingsAndAssets(Long userId, String fiType, AssetAccount account, List<AccountData> allAccounts) {
 
         FiTypeExtractor extractor = extractorRegistry.get(fiType)
-                .orElseThrow(() -> new ResourceNotFoundException("No extractor registered for fiType = " + fiType));
+                .orElseThrow(() -> new ResourceNotFoundException("No extractor registered for fiType: " + fiType));
 
-        List<AccountData> allAccounts = fiData.getFips().stream()
-                .filter(Objects::nonNull)
-                .map(Fip::getAccounts)
-                .filter(Objects::nonNull)
-                .flatMap(Collection::stream)
-                .filter(Objects::nonNull)
-                .toList();
+        UserPortfolio existingPortfolio = userPortfolioMongoRepo.findByUserIdAndAssetType(userId, fiType)
+                .orElseGet(() -> {
+                    UserPortfolio newPortfolio = extractor.extractPortfolio(account);
+                    newPortfolio.setUserId(userId);
+                    newPortfolio.setAssetType(fiType);
+                    return newPortfolio;
+                });
 
-        if (allAccounts.isEmpty()) {
-            return;
-        }
+        existingPortfolio.setCurrentAssetValue(BigDecimal.ZERO);
+        existingPortfolio.setTotalInvestedValue(BigDecimal.ZERO);
+        existingPortfolio.setLastUpdatedOn(java.time.LocalDateTime.now());
 
-        UserPortfolio currentPortfolio = extractor.extractPortfolio(account);
-        currentPortfolio.setUserId(userId);
-        currentPortfolio.setCurrentAssetValue(BigDecimal.ZERO);
-        currentPortfolio.setTotalInvestedValue(BigDecimal.ZERO);
-        // Sequentially fold each account's holdings into the running portfolio
         for (AccountData accountData : allAccounts) {
-            currentPortfolio = extractor.extract(accountData, userId, account, currentPortfolio);
+            existingPortfolio = extractor.extract(accountData, userId, account, existingPortfolio);
         }
-        // Save a single consolidated portfolio across all holdings
-        userPortfolioMongoRepo.save(currentPortfolio);
+
+        userPortfolioMongoRepo.save(existingPortfolio);
+        log.info("Successfully extracted and saved portfolio for UserId: {}, FiType: {}", userId, fiType);
     }
 
     public CreateConsentRequest buildConsentRequest(Long userId, String fiType) {
-        log.info("Start SetuAAServiceImpl :: buildConsentRequest :: {}", fiType);
+        log.info("Start buildConsentRequest for UserId: {}, FiType: {}", userId, fiType);
+
         User user = userService.getUserById(userId);
-        CreateConsentRequest createConsentRequest = new CreateConsentRequest();
-        createConsentRequest.setFiTypes(List.of(fiType));
-        createConsentRequest.setVua(String.format("%s@onemoney", user.getMobNo()));
-        createConsentRequest.setContext(Collections.emptyList());
+        CreateConsentRequest request = new CreateConsentRequest();
 
-        ConsentDuration duration = new ConsentDuration("MONTH", "24");
-        createConsentRequest.setConsentDuration(duration);
+        request.setFiTypes(List.of(fiType));
+        request.setVua(user.getMobNo() + vuaSuffix); // e.g., @onemoney
+        request.setContext(Collections.emptyList());
+        request.setConsentDuration(new ConsentDuration("MONTH", consentDurationMonths));
 
-        DateTimeFormatter formatter = DateTimeFormatter
+        // 1. Strict Formatter ensuring exactly 3 millisecond digits and 'Z' for UTC
+        DateTimeFormatter strictFormatter = DateTimeFormatter
                 .ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
                 .withZone(ZoneOffset.UTC);
 
-        String to = formatter.format(Instant.now());
+        // 2. Base time in UTC
+        ZonedDateTime nowUTC = ZonedDateTime.now(ZoneOffset.UTC);
 
-        String from = formatter.format(
-                ZonedDateTime.now(ZoneOffset.UTC)
-                        .minusYears(1)
-                        .toInstant()
-        );
+        // 3. FROM: Today - 1 Year (Fetches existing wealth/portfolio)
+        String from = strictFormatter.format(nowUTC.minusYears(1));
+
+        // 4. TO: Today + 1 Year (Allows continuous future syncing on this same consent)
+        String to = strictFormatter.format(nowUTC);
 
         DataRange dataRange = new DataRange(from, to);
+
+        // Save state
         mongoService.saveDataRangeByFiType(userId, dataRange, fiType);
-        createConsentRequest.setDataRange(dataRange);
-        log.info("End SetuAAServiceImpl :: buildConsentRequest :: {}", fiType);
-        return createConsentRequest;
+        request.setDataRange(dataRange);
+
+        log.info("End buildConsentRequest for UserId: {}, FiType: {} | Range: {} to {}", userId, fiType, from, to);
+        return request;
     }
 }
